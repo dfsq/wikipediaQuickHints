@@ -1,0 +1,17 @@
+a.hintLink {}
+
+div.hintDescr {position: absolute; left: 0; top: 0; width: 300px; display: block; background-color: #FFF; z-index: 10000; border: 1px #AAA solid; padding: 5px 6px; text-align: justify; font-size: 11px; color: #000; line-height: 15px; top: 2px; right: 3px; -webkit-box-shadow: #666 2px 2px 3px;}
+div.hintDescr div.more {text-align: right;}
+div.hintDescr div.more a {color: #0645AD;}
+div.hintDescr div.more a.mark {margin-right: 10px; padding-left: 12px; cursor: pointer;}
+div.hintDescr div.more a.mark.inactive {color: #777;}
+div.hintDescr div.more a:visited {color: #0645AD;}
+div.hintDescr br:first-child {display: none;}
+
+a.image {position: relative; display: inline-block;}
+a.image div.hintZoom {position: absolute; top: 2px; right: 2px; height: 16px !important; width: 16px !important; border: 1px #FFF solid; opacity: 0.2; background: url(data:image/gif;base64,R0lGODlhDwAPALMAANnZ2ZaWlqOjoxUVFXR0dISEhFpaWjg4OLS0tPX19QoKCv///87OziMjI+3t7R0dHSH5BAAAAAAALAAAAAAPAA8AAARNcMhJa1VqYEsNYsGRWUqwJMDiHKSxII9ioKSwiFpxj5IiJDENYUdRDAuYB8PRsChfgRSBN1E0fosskqNpNFwr6kWBeIkvB8aW22O7BxEAOw==)}
+a.image:hover div.hintZoom {opacity: 1;}
+
+#hintOverlay {text-align: center; z-index: 1000; position: fixed; top: 0; left: 0; background-color: rgba(0, 0, 0, 0.5); width: 100%; height: 100%;}
+#hintOverlay .hintImgCont {position: absolute; top: 50%; left: 50%; background-color: #F9F9F9; border: 1px solid #CCC; padding: 5px; display: inline-block;}
+#hintOverlay .hintImgCont img {border: 1px solid #CCC;}

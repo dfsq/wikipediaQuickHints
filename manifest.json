@@ -1,0 +1,23 @@
+{
+	"name": "Wikipedia Quick Hints",
+	"description": "Display quick description of the terms in the Wikipedia article.",
+	"version": "2.0",
+	"background_page": "background.html",
+	"content_scripts": [{
+		"js": ["wikipediaQuickHints.js"],
+		"css": ["hint.css"],
+		"matches": ["http://*.wikipedia.org/wiki/*"],
+		"run_at": "document_idle"
+	}],
+	"icons": {
+		"128": "img/128.png",
+		"16": "img/16.png",
+		"48": "img/48.png"
+	},
+	"page_action": {
+		"default_icon": "img/16.png",
+		"default_popup": "popup.html",
+		"default_title": "Quick hints are available"
+	},
+	"permissions": ["tabs"]
+}

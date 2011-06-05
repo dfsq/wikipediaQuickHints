@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="popup.css" />
+	<script type="text/javascript" src="popup.js"></script>
+	<script type="text/javascript">
+		var popup;
+		window.onload = function() {
+			popup = new POPUP.Controller();
+			popup.init();
+		};
+	</script>
+</head>
+<body>
+
+	<!-- PAGES CONTAINER -->
+	<div id="wiki"></div>
+
+	<!-- HOME TEMPLATE -->
+	<div class="tpl" id="tpl_home">
+		<header>
+			<h2 class="left">Featured articles</h2>
+			<span class="button right" title="Settings" onclick="popup.show('settings')">
+				<img src="img/settings.png" alt="">
+			</span>
+			<div class="clr"></div>
+		</header>
+		<section>
+			<ul>
+				{% if (links.length) : %}
+					{% for (var i in links) : %}
+					<li><a href="javascript:void(0)" onclick="chrome.tabs.create({url: '{{links[i].href}}'})">{{links[i].title}}</a></li>
+					{% endfor %}
+				{% else %}
+					<li class="no-content">No featured articles.</li>
+				{% endif %}
+			</ul>
+		</section>
+	</div>
+	<!--/HOME TEMPLATE -->
+
+	<!-- SETTINGS TEMPLATE -->
+	<div class="tpl" id="tpl_settings">
+		<header>
+			<h2 class="left">Settings</h2>
+			<span class="button featured right" title="Home" onclick="popup.show('home')">
+				<img src="img/home.png" width="19" alt="">
+			</span>
+			<div class="clr"></div>
+		</header>
+		<section>
+
+			<h4>Image zooming</h4>
+			<p class="option">
+				<input type="checkbox" id="image_zooming" class="left">
+				<label for="image_zooming" class="left">Enable image zooming</label>
+				<div class="clr"></div>
+			</p>
+
+			<h4>Hints history</h4>
+			<p class="option">
+				<input type="checkbox" id="hints_history" class="left">
+				<label for="hints_history">Enable hints history</label>
+				<div class="clr"></div>
+			</p>
+
+			<div class="buttons">
+				<input type="button" value="Save" onclick="popup.save()">
+				<input type="button" value="Cancel" onclick="popup.show('home')">
+			</div>
+
+		</section>
+	</div>
+	<!--/SETTINGS TEMPLATE -->
+
+	<!-- NEWS TEMPLATE -->
+	<!--/NEWS TEMPLATE -->
+
+</body>
+</html>

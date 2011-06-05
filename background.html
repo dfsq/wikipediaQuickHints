@@ -1,0 +1,69 @@
+<script type="text/javascript">
+	var VERSION = 2.0;
+	chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+		if (tab.url.indexOf("wikipedia.org/wiki/") > -1) {
+
+			if (typeof localStorage['version'] == 'undefined' || parseFloat(localStorage['version']) < VERSION) {
+				chrome.pageAction.setIcon({
+					tabId: tabId,
+					path: 'img/16_new.png'
+				});
+				chrome.pageAction.setTitle({
+					tabId: tabId,
+					title: "See what's new in version " + VERSION
+				});
+			}
+			chrome.pageAction.show(tabId);
+
+			chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+				/**
+				 * Store in local storage next information.
+				 * 	zoomEnabled 0|1
+				 * 	hintsHistoryEnabled 0|1
+				 * 	featuredArticles [{name: 'Article name', url: 'http://test.com'}, ...]
+				 */
+				if (request.localstorage) {
+					localStorage.zoomEnabled = (typeof localStorage.zoomEnabled != 'undefined') ? parseInt(localStorage.zoomEnabled) : 1
+					localStorage.hintsHistoryEnabled = (typeof localStorage.hintsHistoryEnabled != 'undefined') ? parseInt(localStorage.hintsHistoryEnabled) : 1
+					sendResponse(localStorage);
+				}
+
+				/**
+				 * Save to localStoarage.
+				 */
+				else if (request.save) {
+
+					// workaround. bug in chorme: event fired twice.
+					var check = localStorage._h || 0;
+					if (check == request._h) return;
+					else localStorage._h = request._h;
+
+					var data = localStorage[request.save.key];
+					var arr;
+
+					if (data) {
+						arr = JSON.parse(data);
+					}
+					else {
+						arr = [];
+					}
+
+					arr.push(request.save.value);
+					localStorage[request.save.key] = JSON.stringify(arr);
+
+					sendResponse({ featured: arr });
+				}
+
+				/**
+				 * Change action icon.
+				 */
+				else if (request.method == 'changeIcon') {
+					chrome.pageAction.setIcon({
+						tabId: tabId,
+						path: 'img/16.png'
+					});
+				}
+			});
+		}
+	});
+</script>

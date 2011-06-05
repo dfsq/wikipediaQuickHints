@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="popup.css" />
+<script type="text/javascript">
+
+	var _VERSION = 1.45;
+
+	function OptionsPopUp() {
+		
+		var storage = chrome.extension.getBackgroundPage().localStorage;
+		
+		var init = function() {
+			notificationCheck();
+			initOptions();
+			useControlButton();
+		};
+		
+		var initOptions = function() {
+			var showPlace = storage["options_ShowPlace"] || 1;
+			var controlButton = storage["options_ControlButton"] || 1;
+			var controlButtonUse = storage["options_ControlButtonUse"];
+			var zoomEnabled = storage["options_ZoomEnabled"];
+
+			_el("showPlace" + showPlace).checked = "checked";
+			_el("controlButton" + controlButton).checked = "checked";
+			
+			if (typeof controlButtonUse != 'undefined' && controlButtonUse == 1) {
+				_el("controlButtonUse").checked = "checked";
+			}
+			
+			if (typeof zoomEnabled == 'undefined') {
+				storage["options_ZoomEnabled"] = 1;
+				zoomEnabled = 1;
+			}
+			
+			if (zoomEnabled == 1) {
+				_el("zoomEnabled").checked = "checked";
+			}
+		};
+		
+		var _el = function(el) {
+			return document.getElementById(el);
+		}
+		
+		var useControlButton = function() {
+			var obj = _el("controlButtonUse");
+			var but = document.querySelectorAll('#buttonsOptions .buttons');
+			var cls, dis;
+			
+			if (!obj.checked) {
+				cls = 'buttons inactive';
+				dis = true;
+			}
+			else {
+				cls = 'buttons';
+				dis = false;
+			}
+			
+			for (var i=0; i<but.length; i++) {
+				but[i].className = cls;
+				if (but[i].type == 'radio') {
+					dis ? but[i].setAttribute('disabled', dis) : but[i].removeAttribute('disabled');
+				}
+			}
+		}
+		
+		var saveOptions = function() {
+			var showPlace = _el("showPlace1").checked ? 1 : 2;
+			var controlButton = _el("controlButton1").checked ? 1 : ( (_el("controlButton2").checked) ? 2 : 3 );
+			var controlButtonUse = _el("controlButtonUse").checked ? 1 : 0;
+			var zoomEnabled = _el("zoomEnabled").checked ? 1 : 0;
+
+			storage["options_ShowPlace"] = showPlace;
+			storage["options_ControlButton"] = controlButton;
+			storage["options_ControlButtonUse"] = controlButtonUse;
+			
+			if (parseInt(storage["options_ZoomEnabled"]) != zoomEnabled) {				
+				chrome.tabs.getSelected(null, function(tab) {
+					chrome.tabs.sendRequest(tab.id, {zoomEnabled: zoomEnabled});
+				});
+			}
+			storage["options_ZoomEnabled"] = zoomEnabled;
+
+			closeOptions();
+		}
+		
+		var closeOptions= function() {
+			window.close();
+		}
+		
+		var notificationCheck = function() {
+			if (typeof storage['version'] == 'undefined' || parseFloat(storage['version']) < _VERSION) {
+				_el('news' + _VERSION).style.display = 'block';
+			}
+		};
+		
+		var notificationClose = function() {
+			storage['version'] = _VERSION;
+			_el('news' + _VERSION).style.display = 'none';
+			chrome.extension.sendRequest({method: 'changeIcon'});
+		};
+		
+		init();
+		
+		return {
+			saveOptions: function() {
+				saveOptions();
+			},
+			
+			closeOptions: function() {
+				closeOptions();
+			},
+			
+			useControlButton: function(obj) {
+				useControlButton(obj);
+			},
+			
+			notificationClose: function() {
+				notificationClose();
+			}
+		};
+	};
+	
+	var options;
+	function init() {
+		options = new OptionsPopUp();
+	}
+</script>
+</head>
+<body onload="init();">
+	<div id="wikiHintOptions">
+		
+		<div class="news" id="news1.4">
+			<h3>Version 1.4 new features:</h3>
+			<ul>
+				<li>Press Esc to close the image preview popup.</li>
+				<li>Get definitions without using a hotkey, simply hover the link. You still have option to use hotkey.</li>
+				<li>New features notifications.</li>
+			</ul>
+			<div class="close">
+				<a href="javascript: void(0)" class="close" onclick="options.notificationClose()">close</a>
+			</div>
+		</div>
+		<div class="news" id="news1.45">
+			<h3>Version 1.45:</h3>
+			<ul>
+				<li>Added new option to enable/disable images zooming.</li>
+			</ul>
+			<div class="close">
+				<a href="javascript: void(0)" class="close" onclick="options.notificationClose()">close</a>
+			</div>
+		</div>
+	
+		<h3>Definition position:</h3>
+		<p>
+			<input type="radio" name="showPlace" id="showPlace1" value="1" />
+			<label for="showPlace1">Under the term link</label>
+		</p>
+		<div class="clr"></div>
+		<p>
+			<input type="radio" name="showPlace" id="showPlace2" value="2" />
+			<label for="showPlace2">At the top of the page</label>
+		</p>
+		<div class="clr"></div>
+		
+		<h3 class="t">Control key:</h3>
+		<p id="buttonsOptions">
+			<input type="checkbox" name="controllButtonUse" id="controlButtonUse" onchange="options.useControlButton()" />
+			<label for="controlButtonUse">Use</label>
+			
+			<input type="radio" class="buttons" name="controlButton" id="controlButton1" value="1" />
+			<label for="controlButton1" class="buttons">Shift</label>
+
+			<input type="radio" class="buttons" name="controlButton" id="controlButton2" value="2" />
+			<label for="controlButton2" class="buttons">Ctrl</label>
+
+			<input type="radio" class="buttons" name="controlButton" id="controlButton3" value="3" />
+			<label for="controlButton3" class="buttons">Alt</label>
+		</p>
+		<div class="clr"></div>
+		
+		<h3 class="t">Image zooming:</h3>
+		<p>
+			<input type="checkbox" name="zoomEnabled" id="zoomEnabled" value="1" />
+			<label for="zoomEnabled">Enable image zooming</label>
+		</p>
+		<div class="clr"></div>
+		
+		<p class="save">
+			<input type="button" value="Save" onclick="options.saveOptions()" />
+			<input type="button" value="Close" class="close" onclick="options.closeOptions()" />
+		</p>
+		<div class="clr"></div>
+	</div>
+</body>
+</html>

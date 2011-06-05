@@ -1,0 +1,24 @@
+{
+   "background_page": "background.html",
+   "content_scripts": [ {
+      "js": [ "wiki.js" ],
+      "matches": [ "http://*.wikipedia.org/wiki/*" ],
+      "run_at": "document_idle"
+   } ],
+   "description": "Display quick description of the terms in the Wikipedia article.",
+   "icons": {
+      "128": "128.png",
+      "16": "16.png",
+      "48": "48.png"
+   },
+   "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDKT17t5qJOvZGqyZQBimzY+YcxMJJRDxyELESrWB2fuZoIgj5bRAiPiOZKdr5KoUVw0XZ3LpDUJJuBqktgBbWB+wKVypd/orTyZ2dGY4uJzElbM7H81zDs9+NMzFaASjjVUiip05T1ql4PpODfoqDEdhWkFgEp9OzLIYFBabBqDQIDAQAB",
+   "name": "Wikipedia Quick Hints",
+   "page_action": {
+      "default_icon": "16.png",
+      "default_popup": "popup.html",
+      "default_title": "Quick hints are available"
+   },
+   "permissions": [ "tabs" ],
+   "update_url": "http://clients2.google.com/service/update2/crx",
+   "version": "1.45"
+}
