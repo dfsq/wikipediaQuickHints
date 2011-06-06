@@ -38,7 +38,25 @@
  */
 var POPUP = {};
 
+POPUP.Utils = {
+	Paging: function(init) {
+		return {
+			total: init.total,
+			page: init.page,
+			prev: init.page > 1 ? init.page - 1 : false,
+			next: init.total > init.page * init.perPage ? init.page + 1 : false,
+			offset: (init.page - 1) * init.perPage
+		};
+	}
+};
+
 POPUP.Controller = function() {
+
+	/**
+	 * For featured articles we need some sort of paging.
+	 */
+	var RECORDS_PER_PAGE = 5;
+
 	return {
 		/**
 		 * Initialization.
@@ -52,17 +70,26 @@ POPUP.Controller = function() {
 		/**
 		 * Show specified page.
 		 */
-		show: function(sectionName) {
-			this[sectionName + 'Action'].call(this);
+		show: function() {
+			var args = Array.prototype.slice.call(arguments);
+			this[args.shift() + 'Action'].apply(this, args);
 		},
 
 		/**
 		 * Actions goes here.
 		 */
-		homeAction: function() {
-			var featured = JSON.parse(this.model.getStorage('featured'));
+		homeAction: function(page) {
+			page = page ? parseInt(page) : 1;
+			var featured = JSON.parse(this.model.getStorage('featured') || '[]');
+			var paging = new POPUP.Utils.Paging({
+				total: featured.length,
+				page: page,
+				perPage: RECORDS_PER_PAGE
+			});
+
 			this.view.display('tpl_home', {
-				links: featured
+				paging: paging,
+				links: featured.splice(paging.offset, RECORDS_PER_PAGE)
 			});
 		},
 
@@ -74,6 +101,9 @@ POPUP.Controller = function() {
 
 POPUP.Model = function() {
 	var storage = chrome.extension.getBackgroundPage().localStorage;
+//	var storage = {
+//		featured: '[{"title":"Евклидово пространство","href":"http://ru.wikipedia.org/wiki/Евклидово_пространство"},{"title":"Трёхмерное пространство","href":"http://ru.wikipedia.org/wiki/Трёхмерное_пространство"},{"title":"Нормированное пространство","href":"http://ru.wikipedia.org/wiki/Нормированное_пространство"},{"title":"Векторное пространство","href":"http://ru.wikipedia.org/wiki/Векторное_пространство"},{"title":"Метрическое пространство","href":"http://ru.wikipedia.org/wiki/Метрическое_пространство"},{"title":"Пространство с мерой","href":"http://ru.wikipedia.org/wiki/Пространство_с_мерой"}]'
+//	};
 	return {
 		getStorage: function(key) {
 			return typeof key != 'undefined' ? storage[key] : storage;

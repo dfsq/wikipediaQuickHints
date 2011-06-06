@@ -17,6 +17,7 @@
 }
 
 header h2 {
+	color: #222;
 	font-size: 20px;
 	padding: 0;
 	margin: 10px 0 15px;
@@ -31,7 +32,7 @@ header .button {
 	padding: 3px 3px 2px 4px;
 	border: 1px solid transparent;
 	border-radius: 4px;
-	opacity: 0.7;
+	opacity: 0.8;
 }
 
 header .button:hover {
@@ -105,5 +106,23 @@ section .buttons input:active {
 }
 
 section .buttons input:last-child {
+	margin-left: 5px;
+}
+
+section p.paging {
+	text-align: right;
+}
+
+section p.paging a {
+	text-decoration: none;
+	color: #333;
+}
+
+section p.paging a:hover {
+	color: #111;
+	text-decoration: underline;
+}
+
+section p.paging a:last-child {
 	margin-left: 5px;
 }

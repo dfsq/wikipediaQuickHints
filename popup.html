@@ -35,6 +35,14 @@
 					<li class="no-content">No featured articles.</li>
 				{% endif %}
 			</ul>
+			<p class="paging">
+				{% if (paging.prev) : %}
+				<a href="javascript:void(0)" onclick="popup.show('home', '{{paging.prev}}')">&laquo; prev</a>
+				{% endif %}
+				{% if (paging.next) : %}
+				<a href="javascript:void(0)" onclick="popup.show('home', '{{paging.next}}')">next &raquo;</a>
+				{% endif %}
+			</p>
 		</section>
 	</div>
 	<!--/HOME TEMPLATE -->

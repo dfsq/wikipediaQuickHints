@@ -33,12 +33,14 @@
 				 */
 				else if (request.save) {
 
+					var r = request.save;
+
 					// workaround. bug in chorme: event fired twice.
 					var check = localStorage._h || 0;
 					if (check == request._h) return;
 					else localStorage._h = request._h;
 
-					var data = localStorage[request.save.key];
+					var data = localStorage[r.key];
 					var arr;
 
 					if (data) {
@@ -48,10 +50,20 @@
 						arr = [];
 					}
 
-					arr.push(request.save.value);
-					localStorage[request.save.key] = JSON.stringify(arr);
+					if (r.value.index == -1) {
+						delete r.value.index;
+						arr.push(r.value);
+					}
+					else {
+						arr.splice(r.value.index, 1);
+					}
 
-					sendResponse({ featured: arr });
+					localStorage[r.key] = JSON.stringify(arr);
+
+					sendResponse({
+						featured: arr,
+						removed:  typeof r.value.index != 'undefined'
+					});
 				}
 
 				/**

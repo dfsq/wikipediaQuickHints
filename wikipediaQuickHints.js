@@ -53,6 +53,17 @@ var _ = {
 		return str.replace(/{([^{}]*)}/g, function(a, b) {
 			return map[b] || '';
 		});
+	},
+
+	inArray: function(needle, haystack, key) {
+		return (this.findIndexInArray(needle, haystack, key) != -1);
+	},
+
+	findIndexInArray: function(needle, haystack, key) {
+		for (var i in haystack) {
+			if (haystack[i][key] == needle) return i;
+		}
+		return -1;
 	}
 };
 
@@ -151,8 +162,7 @@ var LinksProccessor = function(communicator) {
 
 	var initCache = function() {
 		communicator.getStorage(function(obj) {
-			_cacheData.featured = JSON.parse(obj.featured);
-			console.log('Storage', obj);
+			_cacheData.featured = JSON.parse(obj.featured || '[]');
 		});
 	};
 
@@ -244,8 +254,8 @@ var LinksProccessor = function(communicator) {
 		});
 
 		// Mark article as featured
-		div.querySelector('.mark').addEventListener('click', function() {
-			markArticle(a.getAttribute('reltitle'), a.href);
+		div.querySelector('.mark').addEventListener('click', function(e) {
+			markArticle(a.getAttribute('reltitle'), a.href, e);
 		}, false);
 
 		div.style.left = pos[0] + 'px';
@@ -262,13 +272,14 @@ var LinksProccessor = function(communicator) {
 		var template =
 			"<div class='hintCont'>{text}</div>" +
 			"<div class='more'>" +
-				"<a class='mark'>Mark article</span>" +
+				"<a class='mark {inactive}'>Mark article</span>" +
 				"<a href='{href}' target='_blank'>Read article</a>" +
 			"</div>";
 
 		return _.tpl(template, {
 			text: text,
-			href: a.href
+			href: a.href,
+			inactive: _.inArray(a.getAttribute('reltitle'), _cacheData.featured, 'title') ? 'inactive' : ''
 		});
 	};
 
@@ -312,12 +323,14 @@ var LinksProccessor = function(communicator) {
 	 * @param title
 	 * @param href
 	 */
-	var markArticle = function(title, href) {
+	var markArticle = function(title, href, e) {
 		communicator.setStorage('featured', {
 			title: title,
-			href: href
+			href:  href,
+			index: _.findIndexInArray(title, _cacheData.featured, 'title')
 		}, function(obj) {
-			console.log('Mark callback', obj);
+			_cacheData.featured = obj.featured;
+			e.srcElement.className = obj.removed ? 'mark' : 'mark inactive';
 		});
 	};
 
@@ -494,5 +507,4 @@ var Communicator = function() {
 /** *****************************************************************************
 * Run application ...
 */
-var wiki = new WikipediaQuickHints();
-wiki.create();
+new WikipediaQuickHints().create();
