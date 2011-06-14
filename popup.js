@@ -64,15 +64,22 @@ POPUP.Controller = function() {
 		init: function() {
 			this.model = new POPUP.Model();
 			this.view  = new POPUP.View();
-			this.show('home');
+			this.page('home');
 		},
 
 		/**
 		 * Show specified page.
 		 */
-		show: function() {
+		page: function() {
 			var args = Array.prototype.slice.call(arguments);
 			this[args.shift() + 'Action'].apply(this, args);
+		},
+
+		/**
+		 * Close popup window.
+		 */
+		closePopup: function() {
+			window.close();
 		},
 
 		/**
@@ -93,8 +100,24 @@ POPUP.Controller = function() {
 			});
 		},
 
-		settingsAction: function() {
-			this.view.display('tpl_settings');
+		settingsAction: function(saveData) {
+			var storage = this.model.getStorage();
+
+			if (saveData) {
+
+				if (parseInt(storage.zoomEnabled) != saveData.zoomEnabled) {
+					chrome.tabs.getSelected(null, function(tab) {
+						chrome.tabs.sendRequest(tab.id, {zoomEnabled: saveData.zoomEnabled});
+					});
+				}
+
+				for (var key in saveData) {
+					this.model.updateStorage(key, saveData[key]);
+				}
+				this.closePopup();
+			}
+
+			this.view.display('tpl_settings', storage);
 		}
 	};
 };
@@ -102,6 +125,8 @@ POPUP.Controller = function() {
 POPUP.Model = function() {
 	var storage = chrome.extension.getBackgroundPage().localStorage;
 //	var storage = {
+//		zoomEnabled: "1",
+//		hintsHistoryEnabled: "1",
 //		featured: '[{"title":"Евклидово пространство","href":"http://ru.wikipedia.org/wiki/Евклидово_пространство"},{"title":"Трёхмерное пространство","href":"http://ru.wikipedia.org/wiki/Трёхмерное_пространство"},{"title":"Нормированное пространство","href":"http://ru.wikipedia.org/wiki/Нормированное_пространство"},{"title":"Векторное пространство","href":"http://ru.wikipedia.org/wiki/Векторное_пространство"},{"title":"Метрическое пространство","href":"http://ru.wikipedia.org/wiki/Метрическое_пространство"},{"title":"Пространство с мерой","href":"http://ru.wikipedia.org/wiki/Пространство_с_мерой"}]'
 //	};
 	return {
@@ -110,10 +135,12 @@ POPUP.Model = function() {
 		},
 
 		/**
-		 * Save to local strorage, then call trigger in content script
+		 * TODO: Save to local strorage, then call trigger in content script
 		 * to update LinksProccessor _cacheData.
 		 */
-		updateStorage: function() {}
+		updateStorage: function(key, value) {
+			storage[key] = value;
+		}
 	};
 };
 

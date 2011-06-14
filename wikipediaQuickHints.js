@@ -86,13 +86,14 @@ var WikipediaQuickHints = function() {
 			imageProccessor = new ImagesProccessor();
 
 			communicator.getStorage(function(storage) {
-				if (storage.zoomEnabled) {
+				if (parseInt(storage.zoomEnabled)) {
 					imageProccessor.run();
 				}
 			});
 
+			var _this = this;
 			communicator.zoomChange(function(zoomEnabled) {
-				zoomEnabled ? this.enableZoom() : this.disableZoom();
+				zoomEnabled ? _this.enableZoom() : _this.disableZoom();
 			});
 		},
 
@@ -478,8 +479,8 @@ var Communicator = function() {
 	return {
 		zoomChange: function(callback) {
 			c.onRequest.addListener(function(request, sender, sendResponse) {
+				callback(!!parseInt(request.zoomEnabled));
 				sendResponse({});
-				callback(!!parseInt(request.zoomEnabled))
 			});
 		},
 

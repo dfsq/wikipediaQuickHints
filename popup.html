@@ -20,7 +20,7 @@
 	<div class="tpl" id="tpl_home">
 		<header>
 			<h2 class="left">Featured articles</h2>
-			<span class="button right" title="Settings" onclick="popup.show('settings')">
+			<span class="button right" title="Settings" onclick="popup.page('settings')">
 				<img src="img/settings.png" alt="">
 			</span>
 			<div class="clr"></div>
@@ -37,10 +37,10 @@
 			</ul>
 			<p class="paging">
 				{% if (paging.prev) : %}
-				<a href="javascript:void(0)" onclick="popup.show('home', '{{paging.prev}}')">&laquo; prev</a>
+				<a href="javascript:void(0)" onclick="popup.page('home', '{{paging.prev}}')">&laquo; prev</a>
 				{% endif %}
 				{% if (paging.next) : %}
-				<a href="javascript:void(0)" onclick="popup.show('home', '{{paging.next}}')">next &raquo;</a>
+				<a href="javascript:void(0)" onclick="popup.page('home', '{{paging.next}}')">next &raquo;</a>
 				{% endif %}
 			</p>
 		</section>
@@ -51,7 +51,7 @@
 	<div class="tpl" id="tpl_settings">
 		<header>
 			<h2 class="left">Settings</h2>
-			<span class="button featured right" title="Home" onclick="popup.show('home')">
+			<span class="button featured right" title="Home" onclick="popup.page('home')">
 				<img src="img/home.png" width="19" alt="">
 			</span>
 			<div class="clr"></div>
@@ -60,21 +60,32 @@
 
 			<h4>Image zooming</h4>
 			<p class="option">
+				{% if (parseInt(zoomEnabled)) : %}
+				<input type="checkbox" id="image_zooming" checked class="left">
+				{% else %}
 				<input type="checkbox" id="image_zooming" class="left">
+				{% endif %}
 				<label for="image_zooming" class="left">Enable image zooming</label>
 				<div class="clr"></div>
 			</p>
 
 			<h4>Hints history</h4>
 			<p class="option">
+				{% if (parseInt(hintsHistoryEnabled)) : %}
+				<input type="checkbox" id="hints_history" checked class="left">
+				{% else %}
 				<input type="checkbox" id="hints_history" class="left">
+				{% endif %}
 				<label for="hints_history">Enable hints history</label>
 				<div class="clr"></div>
 			</p>
 
 			<div class="buttons">
-				<input type="button" value="Save" onclick="popup.save()">
-				<input type="button" value="Cancel" onclick="popup.show('home')">
+				<input type="button" value="Save" onclick="popup.page('settings', {
+					zoomEnabled: document.getElementById('image_zooming').checked + 0,
+					hintsHistoryEnabled: document.getElementById('hints_history').checked + 0
+				})">
+				<input type="button" value="Cancel" onclick="popup.page('home')">
 			</div>
 
 		</section>
