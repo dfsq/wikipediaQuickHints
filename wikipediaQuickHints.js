@@ -128,6 +128,7 @@ var CSSRules = function(communicator) {
 	with (document.styleSheets[0]) {
 		insertRule('div.hintDescr div.more a.mark {background: url(' + communicator.getResource('img/star.png') + ') no-repeat 0 2px;}');
 		insertRule('div.hintDescr div.more a.mark.inactive {background-image: url(' + communicator.getResource('img/star_inactive.png') + ');}');
+		insertRule('div.hintDescr div.more a.read {background: url(' + communicator.getResource('img/read.png?1') + ') no-repeat 0 2px;}');
 		insertRule('a.image div.hintZoom {background: url(' + communicator.getResource('img/zoom.gif') + ') no-repeat 0 0;}');
 	}
 };
@@ -244,7 +245,7 @@ var LinksProccessor = function(communicator) {
 			},
 			onmouseout: function(e) {
 				var tg = e.srcElement;
-				if (tg.nodeName != 'DIV' || tg.className == 'hintCont' || tg.className == 'more') return;
+				if (tg.nodeName != 'DIV' || tg.className == 'more') return;
 				var reltg = e.relatedTarget;
 				while (reltg != tg && reltg.nodeName != 'BODY') reltg = reltg.parentNode;
 				if (reltg == tg) return;
@@ -259,6 +260,9 @@ var LinksProccessor = function(communicator) {
 			markArticle(a.getAttribute('reltitle'), a.href, e);
 		}, false);
 
+		// link line height
+//		var lineHeight = document.defaultView.getComputedStyle(a, null).lineHeight;
+
 		div.style.left = pos[0] + 'px';
 		div.style.top = (pos[1] + 17) + 'px';
 
@@ -271,10 +275,10 @@ var LinksProccessor = function(communicator) {
 		}
 
 		var template =
-			"<div class='hintCont'>{text}</div>" +
+			"{text}" +
 			"<div class='more'>" +
 				"<a class='mark {inactive}'>Mark article</span>" +
-				"<a href='{href}' target='_blank'>Read article</a>" +
+				"<a class='read' href='{href}' target='_blank'>Read article</a>" +
 			"</div>";
 
 		return _.tpl(template, {
@@ -479,8 +483,8 @@ var Communicator = function() {
 	return {
 		zoomChange: function(callback) {
 			c.onRequest.addListener(function(request, sender, sendResponse) {
-				callback(!!parseInt(request.zoomEnabled));
 				sendResponse({});
+				callback(!!parseInt(request.zoomEnabled))
 			});
 		},
 

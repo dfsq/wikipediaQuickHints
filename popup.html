@@ -3,6 +3,7 @@
 <head>
 	<link rel="stylesheet" type="text/css" href="popup.css" />
 	<script type="text/javascript" src="popup.js"></script>
+	<script type="text/javascript" src="templ.js"></script>
 	<script type="text/javascript">
 		var popup;
 		window.onload = function() {
@@ -27,20 +28,18 @@
 		</header>
 		<section>
 			<ul>
-				{% if (links.length) : %}
-					{% for (var i in links) : %}
-					<li><a href="javascript:void(0)" onclick="chrome.tabs.create({url: '{{links[i].href}}'})">{{links[i].title}}</a></li>
-					{% endfor %}
+				{% for link in links %}
+				<li><a href="javascript:void(0)" onclick="chrome.tabs.create({url: '{{ link.href }}'})">{{ link.title }}</a></li>
 				{% else %}
-					<li class="no-content">No featured articles.</li>
-				{% endif %}
+				<li class="no-content">No featured articles.</li>
+				{% endfor %}
 			</ul>
 			<p class="paging">
-				{% if (paging.prev) : %}
-				<a href="javascript:void(0)" onclick="popup.page('home', '{{paging.prev}}')">&laquo; prev</a>
+				{% if paging.prev %}
+				<a href="javascript:void(0)" onclick="popup.page('home', '{{ paging.prev }}')">&laquo; prev</a>
 				{% endif %}
-				{% if (paging.next) : %}
-				<a href="javascript:void(0)" onclick="popup.page('home', '{{paging.next}}')">next &raquo;</a>
+				{% if paging.next %}
+				<a href="javascript:void(0)" onclick="popup.page('home', '{{ paging.next }}')">next &raquo;</a>
 				{% endif %}
 			</p>
 		</section>
@@ -60,8 +59,8 @@
 
 			<h4>Image zooming</h4>
 			<p class="option">
-				{% if (parseInt(zoomEnabled)) : %}
-				<input type="checkbox" id="image_zooming" checked class="left">
+				{% if parseInt(zoomEnabled) %}
+				<input type="checkbox" id="image_zooming" class="left" checked>
 				{% else %}
 				<input type="checkbox" id="image_zooming" class="left">
 				{% endif %}
@@ -71,7 +70,7 @@
 
 			<h4>Hints history</h4>
 			<p class="option">
-				{% if (parseInt(hintsHistoryEnabled)) : %}
+				{% if parseInt(hintsHistoryEnabled) %}
 				<input type="checkbox" id="hints_history" checked class="left">
 				{% else %}
 				<input type="checkbox" id="hints_history" class="left">

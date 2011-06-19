@@ -1,10 +1,11 @@
 a.hintLink {}
 
-div.hintDescr {position: absolute; left: 0; top: 0; width: 300px; display: block; background-color: #FFF; z-index: 10000; border: 1px #AAA solid; padding: 5px 6px; text-align: justify; font-size: 11px; color: #000; line-height: 15px; top: 2px; right: 3px; -webkit-box-shadow: #666 2px 2px 3px;}
-div.hintDescr div.more {text-align: right;}
+div.hintDescr {border-radius: 2px; position: absolute; left: 0; top: 0; width: 300px; display: block; background-color: #FFF; z-index: 10000; border: 1px #AAA solid; padding: 5px 6px; text-align: justify; font-size: 11px; color: #000; line-height: 15px; top: 2px; right: 3px; -webkit-box-shadow: #666 2px 2px 3px;}
+div.hintDescr div.more {margin-top: 2px; text-align: right;}
 div.hintDescr div.more a {color: #0645AD;}
 div.hintDescr div.more a.mark {margin-right: 10px; padding-left: 12px; cursor: pointer;}
 div.hintDescr div.more a.mark.inactive {color: #777;}
+div.hintDescr div.more a.read {padding-left: 12px;}
 div.hintDescr div.more a:visited {color: #0645AD;}
 div.hintDescr br:first-child {display: none;}
 
