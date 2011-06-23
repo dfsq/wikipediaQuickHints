@@ -37,13 +37,13 @@ var _ = {
 		x.send();
 	},
 
-	delay: (function() {
-		var timer = 0;
-		return function(callback, ms) {
-			clearTimeout(timer);
-			timer = setTimeout(callback, ms);
+	delay: {
+		timer: 0,
+		start: function(callback, ms) {
+			clearTimeout(this.timer);
+			this.timer = setInterval(callback, ms);
 		}
-	})(),
+	},
 
 	uniqueID: function() {
 		return 'hintId_' + new Date().getTime();
@@ -139,14 +139,17 @@ var CSSRules = function(communicator) {
 var LinksProccessor = function(communicator) {
 
 	/**
-	 * linkId [hintId attribute of the link] - currently hovered link.
-	 *    If link is not hovered linkId = null.
-	 * hintId [id attribute of the hint] - currently hovered hint. If
-	 *    hint is not hovered hintId = null.
+	 * @linkId [hintId attribute of the link] - currently hovered link.
+	 * If link is not hovered linkId = null.
+	 * @hintId [id attribute of the hint] - currently hovered hint. If
+	 * hint is not hovered hintId = null.
+	 * @topHint [id attribute of the hint] - hint which is currently on the very top
+	 * If only one hint is hovered it's the same as @hintId
 	 */
 	var _activeState = {
 		linkId: null,
-		hintId: null
+		hintId: null,
+		topHint: null
 	};
 
 	/**
@@ -185,9 +188,13 @@ var LinksProccessor = function(communicator) {
 		var a = e.srcElement;
 		var hint = _.one(a.getAttribute('hintId'));
 
+		if (_activeState.topHint && _activeState.topHint != a.getAttribute('hintid')) {
+			hideHint(_activeState.topHint);
+		}
+
 		a.setAttribute('over', 1);
 
-		_.delay(function() {
+		_.delay.start(function() {
 			if (!a.getAttribute('over')) {
 				return;
 			}
@@ -205,7 +212,7 @@ var LinksProccessor = function(communicator) {
 	};
 
 	var showHint = function(hint, a) {
-		_activeState.linkId = hint.id;
+		_activeState.linkId = _activeState.topHint = hint.id;
 		hint.style.display = 'block';
 	};
 
@@ -312,7 +319,7 @@ var LinksProccessor = function(communicator) {
 
 		var hintId = a.getAttribute('hintId');
 		if (hintId) {
-			_.delay(function() {
+			_.delay.start(function() {
 				hideHint(hintId);
 			}, 300);
 		}

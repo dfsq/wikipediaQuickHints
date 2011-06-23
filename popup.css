@@ -60,6 +60,24 @@ section li.no-content {
 	color: #444;
 }
 
+section .featured span {
+	display: none;
+	opacity: 0.6;
+	cursor: pointer;
+}
+
+section .featured span img {
+	margin: 0 0 -2px 0px;
+}
+
+section .featured:hover span {
+	display: inline-block;
+}
+
+section .featured span:hover {
+	opacity: 1;
+}
+
 section h4 {
 	color: #333;
 	margin: 0;

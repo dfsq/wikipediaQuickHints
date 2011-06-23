@@ -1,39 +1,4 @@
 /**
- * Template engine.
- */
-(function() {
-	var cache = {};
-	this.tmpl = function(str, data) {
-		try {
-			var func = cache[str];
-			if (!func) {
-				var strFunc =
-					"var p=[], print=function() {p.push.apply(p,arguments);};" +
-					"with(obj) {p.push('" +
-						str	.replace(/[\r\t\n]/g, " ")
-							.replace(/'(?=[^%]*%})/g, "\t")
-							.split("'").join("\\'")
-							.split("\t").join("'")
-							.replace(/:\s*%}/g, '{ %}')
-							.replace(/(endfor|endif)\s*%}/g, '} %}')
-							.replace(/{%\s*else\s*%}/g, '{% } else { %}')
-							.replace(/{{(.+?)}}/g, "',$1,'")
-							.split("{%").join("');")
-							.split("%}").join("p.push('")
-						+ "');}return p.join('');";
-				func = new Function("obj", strFunc);
-				cache[str] = func;
-			}
-			return func(data);
-		}
-		catch (e) {
-			return "TMPL ERROR: " + e.message;
-		}
-	}
-})();
-
-
-/**
  * MVC structure implementation.
  */
 var POPUP = {};
@@ -96,7 +61,9 @@ POPUP.Controller = function() {
 
 			this.view.display('tpl_home', {
 				paging: paging,
-				links: featured.splice(paging.offset, RECORDS_PER_PAGE)
+				links:  featured.splice(paging.offset, RECORDS_PER_PAGE),
+				hintsHistory: this.model.getStorage('hintsHistoryEnabled'),
+				hints: []
 			});
 		},
 
@@ -114,7 +81,8 @@ POPUP.Controller = function() {
 				for (var key in saveData) {
 					this.model.updateStorage(key, saveData[key]);
 				}
-				this.closePopup();
+
+				return this.page('home');
 			}
 
 			this.view.display('tpl_settings', storage);
@@ -123,12 +91,12 @@ POPUP.Controller = function() {
 };
 
 POPUP.Model = function() {
-//	var storage = chrome.extension.getBackgroundPage().localStorage;
-	var storage = {
-		zoomEnabled: "1",
-		hintsHistoryEnabled: "1",
-		featured: '[{"title":"Евклидово пространство","href":"http://ru.wikipedia.org/wiki/Евклидово_пространство"},{"title":"Трёхмерное пространство","href":"http://ru.wikipedia.org/wiki/Трёхмерное_пространство"},{"title":"Нормированное пространство","href":"http://ru.wikipedia.org/wiki/Нормированное_пространство"},{"title":"Векторное пространство","href":"http://ru.wikipedia.org/wiki/Векторное_пространство"},{"title":"Метрическое пространство","href":"http://ru.wikipedia.org/wiki/Метрическое_пространство"},{"title":"Пространство с мерой","href":"http://ru.wikipedia.org/wiki/Пространство_с_мерой"}]'
-	};
+	var storage = chrome.extension.getBackgroundPage().localStorage;
+//	var storage = {
+//		zoomEnabled: "1",
+//		hintsHistoryEnabled: "1",
+//		featured: '[{"title":"Cartesian coordinates","href":"http://en.wikipedia.org/wiki/Cartesian_coordinates"},{"title":"Greeks","href":"http://en.wikipedia.org/wiki/Greeks"}]'
+//	};
 	return {
 		getStorage: function(key) {
 			return typeof key != 'undefined' ? storage[key] : storage;

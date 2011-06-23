@@ -29,11 +29,15 @@
 		<section>
 			<ul>
 				{% for link in links %}
-				<li><a href="javascript:void(0)" onclick="chrome.tabs.create({url: '{{ link.href }}'})">{{ link.title }}</a></li>
+				<li class="featured">
+					<a href="javascript:void(0)" onclick="chrome.tabs.create({url: '{{ link.href }}'})">{{ link.title }}</a>
+					<span onclick=""><img src="img/trash.png"></span>
+				</li>
 				{% else %}
 				<li class="no-content">No featured articles.</li>
 				{% endfor %}
 			</ul>
+
 			<p class="paging">
 				{% if paging.prev %}
 				<a href="javascript:void(0)" onclick="popup.page('home', '{{ paging.prev }}')">&laquo; prev</a>
@@ -42,6 +46,23 @@
 				<a href="javascript:void(0)" onclick="popup.page('home', '{{ paging.next }}')">next &raquo;</a>
 				{% endif %}
 			</p>
+
+			{% if parseInt(hintsHistory) %}
+			<h2>Hints history</h2>
+			<ul>
+				{% for hint in hints %}
+				<li><a href="javascript:void(0)" onclick="chrome.tabs.create({url: '{{ hint.href }}'})">{{ hint.title }}</a></li>
+				{% else %}
+				<li class="no-content">History is empty.</li>
+				{% endfor %}
+			</ul>
+
+
+			{% endif %}
+
+			<div class="buttons">
+				<input type="button" value="Close" onclick="popup.closePopup()">
+			</div>
 		</section>
 	</div>
 	<!--/HOME TEMPLATE -->
@@ -84,7 +105,7 @@
 					zoomEnabled: document.getElementById('image_zooming').checked + 0,
 					hintsHistoryEnabled: document.getElementById('hints_history').checked + 0
 				})">
-				<input type="button" value="Cancel" onclick="popup.page('home')">
+				<input type="button" value="Close" onclick="popup.closePopup()">
 			</div>
 
 		</section>
