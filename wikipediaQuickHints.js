@@ -218,17 +218,17 @@ var LinksProccessor = function(communicator) {
 
 	var getDefinition = function(url, callback) {
 		_.xhr(url, function(x) {
-			var par = x.responseXML.querySelectorAll('#bodyContent > p');
+			var par = x.responseXML.querySelectorAll('#bodyContent>p');
 			var node = getFirstPar(par);
 			callback(node ? node.innerHTML : null);
 		});
 	};
 
 	var getFirstPar = function(col) {
+		if (!col.length) return false;
+
 		var i = 0;
 		var p = col[i];
-
-		if (!col.length) return false;
 
 		while (/^(\s*|<br\s?.*?\/?>)*$/.test(p.innerHTML)) {
 			p = col[++i];

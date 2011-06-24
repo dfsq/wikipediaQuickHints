@@ -24,7 +24,8 @@
 				 */
 				if (request.localstorage) {
 					localStorage.zoomEnabled = (typeof localStorage.zoomEnabled != 'undefined') ? parseInt(localStorage.zoomEnabled) : 1
-					localStorage.hintsHistoryEnabled = (typeof localStorage.hintsHistoryEnabled != 'undefined') ? parseInt(localStorage.hintsHistoryEnabled) : 1
+					localStorage.hintsHistoryEnabled = (typeof localStorage.hintsHistoryEnabled != 'undefined') ? parseInt(localStorage.hintsHistoryEnabled) : 1,
+					localStorage.recursiveHints = (typeof localStorage.recursiveHints != 'undefined') ? parseInt(localStorage.recursiveHints) : 1
 					sendResponse(localStorage);
 				}
 

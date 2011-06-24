@@ -1,4 +1,9 @@
 /**
+ * Current version.
+ */
+var _VERSION = 2.0;
+
+/**
  * MVC structure implementation.
  */
 var POPUP = {};
@@ -29,7 +34,9 @@ POPUP.Controller = function() {
 		init: function() {
 			this.model = new POPUP.Model();
 			this.view  = new POPUP.View();
-			this.page('home');
+
+			var version = this.model.getStorage('version');
+			(typeof version == 'undefined' || parseFloat(version) < _VERSION) ? this.page('news', _VERSION) : this.page('home');
 		},
 
 		/**
@@ -45,6 +52,22 @@ POPUP.Controller = function() {
 		 */
 		closePopup: function() {
 			window.close();
+		},
+
+		/**
+		 * Display news after update.
+		 * @param version
+		 */
+		newsAction: function(version) {
+			this.view.display('tpl_news', {
+				version: version.toPrecision(2)
+			});
+		},
+
+		newsCloseAction: function() {
+			this.model.updateStorage('version', _VERSION);
+			chrome.extension.sendRequest({method: 'changeIcon'});
+			this.page('home');
 		},
 
 		/**
@@ -71,7 +94,6 @@ POPUP.Controller = function() {
 			var storage = this.model.getStorage();
 
 			if (saveData) {
-
 				if (parseInt(storage.zoomEnabled) != saveData.zoomEnabled) {
 					chrome.tabs.getSelected(null, function(tab) {
 						chrome.tabs.sendRequest(tab.id, {zoomEnabled: saveData.zoomEnabled});
@@ -95,6 +117,8 @@ POPUP.Model = function() {
 //	var storage = {
 //		zoomEnabled: "1",
 //		hintsHistoryEnabled: "1",
+//		recursiveHints: "1",
+//		version: "2",
 //		featured: '[{"title":"Cartesian coordinates","href":"http://en.wikipedia.org/wiki/Cartesian_coordinates"},{"title":"Greeks","href":"http://en.wikipedia.org/wiki/Greeks"}]'
 //	};
 	return {
