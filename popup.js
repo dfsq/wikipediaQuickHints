@@ -123,12 +123,12 @@ POPUP.Controller = function() {
 };
 
 POPUP.Model = function() {
-//	var storage = chrome.extension.getBackgroundPage().localStorage;
-	var storage = {
-		zoomEnabled: "1",
-		hintsHistoryEnabled: "1",
-		featured: '[{"title":"Евклидово пространство","href":"http://ru.wikipedia.org/wiki/Евклидово_пространство"},{"title":"Трёхмерное пространство","href":"http://ru.wikipedia.org/wiki/Трёхмерное_пространство"},{"title":"Нормированное пространство","href":"http://ru.wikipedia.org/wiki/Нормированное_пространство"},{"title":"Векторное пространство","href":"http://ru.wikipedia.org/wiki/Векторное_пространство"},{"title":"Метрическое пространство","href":"http://ru.wikipedia.org/wiki/Метрическое_пространство"},{"title":"Пространство с мерой","href":"http://ru.wikipedia.org/wiki/Пространство_с_мерой"}]'
-	};
+	var storage = chrome.extension.getBackgroundPage().localStorage;
+//	var storage = {
+//		zoomEnabled: "1",
+//		hintsHistoryEnabled: "1",
+//		featured: '[{"title":"Евклидово пространство","href":"http://ru.wikipedia.org/wiki/Евклидово_пространство"},{"title":"Трёхмерное пространство","href":"http://ru.wikipedia.org/wiki/Трёхмерное_пространство"},{"title":"Нормированное пространство","href":"http://ru.wikipedia.org/wiki/Нормированное_пространство"},{"title":"Векторное пространство","href":"http://ru.wikipedia.org/wiki/Векторное_пространство"},{"title":"Метрическое пространство","href":"http://ru.wikipedia.org/wiki/Метрическое_пространство"},{"title":"Пространство с мерой","href":"http://ru.wikipedia.org/wiki/Пространство_с_мерой"}]'
+//	};
 	return {
 		getStorage: function(key) {
 			return typeof key != 'undefined' ? storage[key] : storage;
