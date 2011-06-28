@@ -41,7 +41,7 @@ var _ = {
 		timer: 0,
 		start: function(callback, ms) {
 			clearTimeout(this.timer);
-			this.timer = setInterval(callback, ms);
+			this.timer = setTimeout(callback, ms);
 		}
 	},
 
@@ -177,6 +177,7 @@ var LinksProccessor = function(communicator) {
 			var href = a[i].getAttribute('href');
 			if (!href || href.search('/wiki/') == -1 || href.search('/wiki/') != 0 || /(.jpe?g|.gif|.png|.svg)$/i.test(href)) continue;
 
+			a[i].className = 'hintLink';
 			a[i].setAttribute('reltitle', a[i].getAttribute('title'));
 			a[i].removeAttribute('title');
 			a[i].addEventListener('mouseover', linkOver, false);
@@ -218,8 +219,13 @@ var LinksProccessor = function(communicator) {
 
 	var getDefinition = function(url, callback) {
 		_.xhr(url, function(x) {
-			var par = x.responseXML.querySelectorAll('#bodyContent>p');
-			var node = getFirstPar(par);
+			try {
+				var par = x.responseXML.querySelectorAll('#bodyContent > p');
+				var node = getFirstPar(par);
+			}
+			catch (e) {
+				var node = null;
+			}
 			callback(node ? node.innerHTML : null);
 		});
 	};
@@ -267,11 +273,8 @@ var LinksProccessor = function(communicator) {
 			markArticle(a.getAttribute('reltitle'), a.href, e);
 		}, false);
 
-		// link line height
-//		var lineHeight = document.defaultView.getComputedStyle(a, null).lineHeight;
-
 		div.style.left = pos[0] + 'px';
-		div.style.top = (pos[1] + 17) + 'px';
+		div.style.top = (pos[1] + a.offsetHeight - 1) + 'px';
 
 		return _.all('body')[0].appendChild(div);
 	};
@@ -284,14 +287,17 @@ var LinksProccessor = function(communicator) {
 		var template =
 			"{text}" +
 			"<div class='more'>" +
-				"<a class='mark {inactive}'>Mark article</span>" +
+				"<a class='mark {inactive}'>{marktext}</span>" +
 				"<a class='read' href='{href}' target='_blank'>Read article</a>" +
 			"</div>";
+
+		var mark = _.inArray(a.getAttribute('reltitle'), _cacheData.featured, 'title') ? 'inactive' : '';
 
 		return _.tpl(template, {
 			text: text,
 			href: a.href,
-			inactive: _.inArray(a.getAttribute('reltitle'), _cacheData.featured, 'title') ? 'inactive' : ''
+			inactive: mark,
+			marktext: mark ? 'Unmark article' : 'Mark article'
 		});
 	};
 
@@ -342,7 +348,15 @@ var LinksProccessor = function(communicator) {
 			index: _.findIndexInArray(title, _cacheData.featured, 'title')
 		}, function(obj) {
 			_cacheData.featured = obj.featured;
-			e.srcElement.className = obj.removed ? 'mark' : 'mark inactive';
+			var a = e.srcElement;
+			if (obj.removed) {
+				a.className = 'mark';
+				a.innerText = 'Mark article';
+			}
+			else {
+				a.className = 'mark inactive';
+				a.innerText = 'Unmark article';
+			}
 		});
 	};
 
