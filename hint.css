@@ -1,4 +1,25 @@
-a.hintLink {}
+a.hintLink {position: relative;}
+a.hintLink:hover {border-bottom: 1px dashed #a52a2a; text-decoration: none;}
+a.hintLink:after {
+    content: '?';
+    position: relative;
+    bottom: 0px;
+    right: 0;
+    font-weight: bold;
+    background-color: #FFF;
+    padding: 1px;
+    line-height: 100%;
+    font-size: 9px;
+	margin-right: 0px;
+    display: inline-block;
+    vertical-align: sub;
+    color: #0645AD;
+	opacity: 0.6;
+}
+a.hintLink:hover:after {
+	color: #a52a2a;
+	opacity: 1;
+}
 
 div.hintDescr {border-radius: 2px; position: absolute; left: 0; top: 0; width: 300px; display: block; background-color: #FFF; z-index: 10000; border: 1px #AAA solid; padding: 5px 6px; text-align: justify; font-size: 11px; color: #000; line-height: 15px; top: 2px; right: 3px; -webkit-box-shadow: #666 2px 2px 3px;}
 div.hintDescr div.more {margin-top: 2px; text-align: right;}

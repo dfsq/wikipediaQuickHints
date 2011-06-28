@@ -37,13 +37,13 @@ var _ = {
 		x.send();
 	},
 
-	delay: (function() {
-		var timer = 0;
-		return function(callback, ms) {
-			clearTimeout(timer);
-			timer = setTimeout(callback, ms);
+	delay: {
+		timer: 0,
+		start: function(callback, ms) {
+			clearTimeout(this.timer);
+			this.timer = setTimeout(callback, ms);
 		}
-	})(),
+	},
 
 	uniqueID: function() {
 		return 'hintId_' + new Date().getTime();
@@ -139,14 +139,17 @@ var CSSRules = function(communicator) {
 var LinksProccessor = function(communicator) {
 
 	/**
-	 * linkId [hintId attribute of the link] - currently hovered link.
-	 *    If link is not hovered linkId = null.
-	 * hintId [id attribute of the hint] - currently hovered hint. If
-	 *    hint is not hovered hintId = null.
+	 * @linkId [hintId attribute of the link] - currently hovered link.
+	 * If link is not hovered linkId = null.
+	 * @hintId [id attribute of the hint] - currently hovered hint. If
+	 * hint is not hovered hintId = null.
+	 * @topHint [id attribute of the hint] - hint which is currently on the very top
+	 * If only one hint is hovered it's the same as @hintId
 	 */
 	var _activeState = {
 		linkId: null,
-		hintId: null
+		hintId: null,
+		topHint: null
 	};
 
 	/**
@@ -174,6 +177,7 @@ var LinksProccessor = function(communicator) {
 			var href = a[i].getAttribute('href');
 			if (!href || href.search('/wiki/') == -1 || href.search('/wiki/') != 0 || /(.jpe?g|.gif|.png|.svg)$/i.test(href)) continue;
 
+			a[i].className = 'hintLink';
 			a[i].setAttribute('reltitle', a[i].getAttribute('title'));
 			a[i].removeAttribute('title');
 			a[i].addEventListener('mouseover', linkOver, false);
@@ -185,9 +189,13 @@ var LinksProccessor = function(communicator) {
 		var a = e.srcElement;
 		var hint = _.one(a.getAttribute('hintId'));
 
+		if (_activeState.topHint && _activeState.topHint != a.getAttribute('hintid')) {
+			hideHint(_activeState.topHint);
+		}
+
 		a.setAttribute('over', 1);
 
-		_.delay(function() {
+		_.delay.start(function() {
 			if (!a.getAttribute('over')) {
 				return;
 			}
@@ -205,23 +213,28 @@ var LinksProccessor = function(communicator) {
 	};
 
 	var showHint = function(hint, a) {
-		_activeState.linkId = hint.id;
+		_activeState.linkId = _activeState.topHint = hint.id;
 		hint.style.display = 'block';
 	};
 
 	var getDefinition = function(url, callback) {
 		_.xhr(url, function(x) {
-			var par = x.responseXML.querySelectorAll('#bodyContent > p');
-			var node = getFirstPar(par);
+			try {
+				var par = x.responseXML.querySelectorAll('#bodyContent > p');
+				var node = getFirstPar(par);
+			}
+			catch (e) {
+				var node = null;
+			}
 			callback(node ? node.innerHTML : null);
 		});
 	};
 
 	var getFirstPar = function(col) {
+		if (!col.length) return false;
+
 		var i = 0;
 		var p = col[i];
-
-		if (!col.length) return false;
 
 		while (/^(\s*|<br\s?.*?\/?>)*$/.test(p.innerHTML)) {
 			p = col[++i];
@@ -260,11 +273,8 @@ var LinksProccessor = function(communicator) {
 			markArticle(a.getAttribute('reltitle'), a.href, e);
 		}, false);
 
-		// link line height
-//		var lineHeight = document.defaultView.getComputedStyle(a, null).lineHeight;
-
 		div.style.left = pos[0] + 'px';
-		div.style.top = (pos[1] + 17) + 'px';
+		div.style.top = (pos[1] + a.offsetHeight - 1) + 'px';
 
 		return _.all('body')[0].appendChild(div);
 	};
@@ -277,14 +287,17 @@ var LinksProccessor = function(communicator) {
 		var template =
 			"{text}" +
 			"<div class='more'>" +
-				"<a class='mark {inactive}'>Mark article</span>" +
+				"<a class='mark {inactive}'>{marktext}</span>" +
 				"<a class='read' href='{href}' target='_blank'>Read article</a>" +
 			"</div>";
+
+		var mark = _.inArray(a.getAttribute('reltitle'), _cacheData.featured, 'title') ? 'inactive' : '';
 
 		return _.tpl(template, {
 			text: text,
 			href: a.href,
-			inactive: _.inArray(a.getAttribute('reltitle'), _cacheData.featured, 'title') ? 'inactive' : ''
+			inactive: mark,
+			marktext: mark ? 'Unmark article' : 'Mark article'
 		});
 	};
 
@@ -312,7 +325,7 @@ var LinksProccessor = function(communicator) {
 
 		var hintId = a.getAttribute('hintId');
 		if (hintId) {
-			_.delay(function() {
+			_.delay.start(function() {
 				hideHint(hintId);
 			}, 300);
 		}
@@ -335,7 +348,15 @@ var LinksProccessor = function(communicator) {
 			index: _.findIndexInArray(title, _cacheData.featured, 'title')
 		}, function(obj) {
 			_cacheData.featured = obj.featured;
-			e.srcElement.className = obj.removed ? 'mark' : 'mark inactive';
+			var a = e.srcElement;
+			if (obj.removed) {
+				a.className = 'mark';
+				a.innerText = 'Mark article';
+			}
+			else {
+				a.className = 'mark inactive';
+				a.innerText = 'Unmark article';
+			}
 		});
 	};
 

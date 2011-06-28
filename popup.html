@@ -29,11 +29,15 @@
 		<section>
 			<ul>
 				{% for link in links %}
-				<li><a href="javascript:void(0)" onclick="chrome.tabs.create({url: '{{ link.href }}'})">{{ link.title }}</a></li>
+				<li class="featured">
+					<a href="javascript:void(0)" onclick="chrome.tabs.create({url: '{{ link.href }}'})">{{ link.title }}</a>
+					<span onclick=""><img src="img/trash.png"></span>
+				</li>
 				{% else %}
 				<li class="no-content">No featured articles.</li>
 				{% endfor %}
 			</ul>
+
 			<p class="paging">
 				{% if paging.prev %}
 				<a href="javascript:void(0)" onclick="popup.page('home', '{{ paging.prev }}')">&laquo; prev</a>
@@ -42,6 +46,23 @@
 				<a href="javascript:void(0)" onclick="popup.page('home', '{{ paging.next }}')">next &raquo;</a>
 				{% endif %}
 			</p>
+
+			{% if parseInt(hintsHistory) %}
+			<h2>Hints history</h2>
+			<ul>
+				{% for hint in hints %}
+				<li><a href="javascript:void(0)" onclick="chrome.tabs.create({url: '{{ hint.href }}'})">{{ hint.title }}</a></li>
+				{% else %}
+				<li class="no-content">History is empty.</li>
+				{% endfor %}
+			</ul>
+
+
+			{% endif %}
+
+			<div class="buttons">
+				<input type="button" value="Close" onclick="popup.closePopup()">
+			</div>
 		</section>
 	</div>
 	<!--/HOME TEMPLATE -->
@@ -71,7 +92,7 @@
 			<h4>Hints history</h4>
 			<p class="option">
 				{% if parseInt(hintsHistoryEnabled) %}
-				<input type="checkbox" id="hints_history" checked class="left">
+				<input type="checkbox" id="hints_history" class="left" checked>
 				{% else %}
 				<input type="checkbox" id="hints_history" class="left">
 				{% endif %}
@@ -79,12 +100,23 @@
 				<div class="clr"></div>
 			</p>
 
+			<h4>Recursive hints</h4>
+			<p class="option">
+				{% if parseInt(recursiveHints) %}
+				<input type="checkbox" id="recursive_hints" class="left" checked>
+				{% else %}
+				<input type="checkbox" id="recursive_hints" class="left">
+				{% endif %}
+				<label for="recursive_hints">Enable hints within another hints</label>
+			</p>
+
 			<div class="buttons">
 				<input type="button" value="Save" onclick="popup.page('settings', {
 					zoomEnabled: document.getElementById('image_zooming').checked + 0,
-					hintsHistoryEnabled: document.getElementById('hints_history').checked + 0
+					hintsHistoryEnabled: document.getElementById('hints_history').checked + 0,
+					recursiveHints: document.getElementById('recursive_hints').checked + 0
 				})">
-				<input type="button" value="Cancel" onclick="popup.page('home')">
+				<input type="button" value="Close" onclick="popup.closePopup()">
 			</div>
 
 		</section>
@@ -92,6 +124,22 @@
 	<!--/SETTINGS TEMPLATE -->
 
 	<!-- NEWS TEMPLATE -->
+	<div class="tpl" id="tpl_news">
+		<header>
+			<h2 class="left">New in version {{ version }}</h2>
+			<span class="button featured right" title="Close news" onclick="popup.page('newsClose')">
+				<img src="img/home.png" width="19" alt="">
+			</span>
+			<div class="clr"></div>
+		</header>
+		<section>
+			<ul class="news">
+				<li>Press Esc to close the image preview popup.</li>
+				<li>Get definitions without using a hotkey, simply hover the link. You still have option to use hotkey.</li>
+				<li>New features notifications.</li>
+			</ul>
+		</section>
+	</div>
 	<!--/NEWS TEMPLATE -->
 
 </body>

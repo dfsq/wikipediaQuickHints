@@ -1,37 +1,7 @@
 /**
- * Template engine.
+ * Current version.
  */
-(function() {
-	var cache = {};
-	this.tmpl = function(str, data) {
-		try {
-			var func = cache[str];
-			if (!func) {
-				var strFunc =
-					"var p=[], print=function() {p.push.apply(p,arguments);};" +
-					"with(obj) {p.push('" +
-						str	.replace(/[\r\t\n]/g, " ")
-							.replace(/'(?=[^%]*%})/g, "\t")
-							.split("'").join("\\'")
-							.split("\t").join("'")
-							.replace(/:\s*%}/g, '{ %}')
-							.replace(/(endfor|endif)\s*%}/g, '} %}')
-							.replace(/{%\s*else\s*%}/g, '{% } else { %}')
-							.replace(/{{(.+?)}}/g, "',$1,'")
-							.split("{%").join("');")
-							.split("%}").join("p.push('")
-						+ "');}return p.join('');";
-				func = new Function("obj", strFunc);
-				cache[str] = func;
-			}
-			return func(data);
-		}
-		catch (e) {
-			return "TMPL ERROR: " + e.message;
-		}
-	}
-})();
-
+var _VERSION = 2.0;
 
 /**
  * MVC structure implementation.
@@ -64,7 +34,9 @@ POPUP.Controller = function() {
 		init: function() {
 			this.model = new POPUP.Model();
 			this.view  = new POPUP.View();
-			this.page('home');
+
+			var version = this.model.getStorage('version');
+			(typeof version == 'undefined' || parseFloat(version) < _VERSION) ? this.page('news', _VERSION) : this.page('home');
 		},
 
 		/**
@@ -83,6 +55,22 @@ POPUP.Controller = function() {
 		},
 
 		/**
+		 * Display news after update.
+		 * @param version
+		 */
+		newsAction: function(version) {
+			this.view.display('tpl_news', {
+				version: version.toPrecision(2)
+			});
+		},
+
+		newsCloseAction: function() {
+			this.model.updateStorage('version', _VERSION);
+			chrome.extension.sendRequest({method: 'changeIcon'});
+			this.page('home');
+		},
+
+		/**
 		 * Actions goes here.
 		 */
 		homeAction: function(page) {
@@ -96,7 +84,9 @@ POPUP.Controller = function() {
 
 			this.view.display('tpl_home', {
 				paging: paging,
-				links: featured.splice(paging.offset, RECORDS_PER_PAGE)
+				links:  featured.splice(paging.offset, RECORDS_PER_PAGE),
+				hintsHistory: this.model.getStorage('hintsHistoryEnabled'),
+				hints: []
 			});
 		},
 
@@ -104,7 +94,6 @@ POPUP.Controller = function() {
 			var storage = this.model.getStorage();
 
 			if (saveData) {
-
 				if (parseInt(storage.zoomEnabled) != saveData.zoomEnabled) {
 					chrome.tabs.getSelected(null, function(tab) {
 						chrome.tabs.sendRequest(tab.id, {zoomEnabled: saveData.zoomEnabled});
@@ -114,7 +103,8 @@ POPUP.Controller = function() {
 				for (var key in saveData) {
 					this.model.updateStorage(key, saveData[key]);
 				}
-				this.closePopup();
+
+				return this.page('home');
 			}
 
 			this.view.display('tpl_settings', storage);
@@ -127,7 +117,9 @@ POPUP.Model = function() {
 //	var storage = {
 //		zoomEnabled: "1",
 //		hintsHistoryEnabled: "1",
-//		featured: '[{"title":"Евклидово пространство","href":"http://ru.wikipedia.org/wiki/Евклидово_пространство"},{"title":"Трёхмерное пространство","href":"http://ru.wikipedia.org/wiki/Трёхмерное_пространство"},{"title":"Нормированное пространство","href":"http://ru.wikipedia.org/wiki/Нормированное_пространство"},{"title":"Векторное пространство","href":"http://ru.wikipedia.org/wiki/Векторное_пространство"},{"title":"Метрическое пространство","href":"http://ru.wikipedia.org/wiki/Метрическое_пространство"},{"title":"Пространство с мерой","href":"http://ru.wikipedia.org/wiki/Пространство_с_мерой"}]'
+//		recursiveHints: "1",
+//		version: "2",
+//		featured: '[{"title":"Cartesian coordinates","href":"http://en.wikipedia.org/wiki/Cartesian_coordinates"},{"title":"Greeks","href":"http://en.wikipedia.org/wiki/Greeks"}]'
 //	};
 	return {
 		getStorage: function(key) {
