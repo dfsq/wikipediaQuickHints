@@ -13,8 +13,9 @@ var _ = {
 		return document.getElementById(sel);
 	},
 
-	all: function(sel) {
-		return document.querySelectorAll(sel);
+	all: function(sel, ctx) {
+		ctx = (typeof ctx == 'undefined') ? document : ctx;
+		return ctx.querySelectorAll(sel);
 	},
 
 	create: function(sel, props) {
@@ -171,8 +172,8 @@ var LinksProccessor = function(communicator) {
 		});
 	};
 
-	var initLinks = function() {
-		var a = _.all('a');
+	var initLinks = function(ctx) {
+		var a = _.all('a', ctx);
 		for (var i=0; i<a.length; i++) {
 			var href = a[i].getAttribute('href');
 			if (!href || href.search('/wiki/') == -1 || href.search('/wiki/') != 0 || /(.jpe?g|.gif|.png|.svg)$/i.test(href)) continue;
@@ -220,39 +221,35 @@ var LinksProccessor = function(communicator) {
 	var getDefinition = function(url, callback) {
 		_.xhr(url, function(x) {
 			try {
-				var par = x.responseXML.querySelectorAll('#bodyContent > p');
-				var node = getFirstPar(par);
+				var nodes = x.responseXML.querySelectorAll('#bodyContent > p, #bodyContent > ul:first-of-type');
+				var html  = getFirstPar(nodes);
 			}
 			catch (e) {
-				var node = null;
+				var html = null;
 			}
-			callback(node ? node.innerHTML : null);
+			callback(html);
 		});
 	};
 
-	var getFirstPar = function(col) {
-		if (!col.length) return false;
+	var getFirstPar = function(nodes) {
+		if (!nodes.length) return false;
 
 		var i = 0;
-		var p = col[i];
+		var p = nodes[i];
 
-		while (/^(\s*|<br\s?.*?\/?>)*$/.test(p.innerHTML)) {
-			p = col[++i];
+		while (/^(\s*|<br\s?.*?\/?>)*$/.test(p.innerHTML) || p.querySelector('#coordinates')) {
+			p = nodes[++i];
 		}
 
-		if (i == 0 && p.querySelector('#coordinates')) {
-			p = col[1];
-		}
-
-		return p;
+		return nodes[i+1].nodeName == 'ul' ? p.innerHTML + nodes[i+1].outerHTML : p.innerHTML;
 	};
 
-	var createHint = function(text, a) {
+	var createHint = function(content, a) {
 		var pos = findPosition(a);
 		var div = _.create('div', {
 			id: _.uniqueID(),
 			className: 'hintDescr',
-			innerHTML: prepareHint(text, a),
+			innerHTML: prepareHint(content, a),
 			onmouseover: function() {
 				_activeState.hintId = this.id;
 			},
@@ -275,6 +272,9 @@ var LinksProccessor = function(communicator) {
 
 		div.style.left = pos[0] + 'px';
 		div.style.top = (pos[1] + a.offsetHeight - 1) + 'px';
+
+		// initialize links inside
+		initLinks(div);
 
 		return _.all('body')[0].appendChild(div);
 	};
