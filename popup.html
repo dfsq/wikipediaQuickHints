@@ -20,7 +20,7 @@
 	<!-- HOME TEMPLATE -->
 	<div class="tpl" id="tpl_home">
 		<header>
-			<h2 class="left">Featured articles</h2>
+			<h2 class="left">Marked articles</h2>
 			<span class="button right" title="Settings" onclick="popup.page('settings')">
 				<img src="img/settings.png" alt="">
 			</span>
@@ -28,10 +28,10 @@
 		</header>
 		<section>
 			<ul>
-				{% for link in links %}
+				{% for key, link in links %}
 				<li class="featured">
 					<a href="javascript:void(0)" onclick="chrome.tabs.create({url: '{{ link.href }}'})">{{ link.title }}</a>
-					<span onclick=""><img src="img/trash.png"></span>
+					<span onclick="popup.page('remove', 'featured', '{{ key }}')">&times;</span>
 				</li>
 				{% else %}
 				<li class="no-content">No featured articles.</li>

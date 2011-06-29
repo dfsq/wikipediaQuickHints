@@ -93,8 +93,10 @@ var WikipediaQuickHints = function() {
 			});
 
 			var _this = this;
-			communicator.zoomChange(function(zoomEnabled) {
-				zoomEnabled ? _this.enableZoom() : _this.disableZoom();
+			communicator.addListeners({
+				zoomEnabled: function(is) {
+					!!parseInt(is) ? _this.enableZoom() : _this.disableZoom();
+				}
 			});
 		},
 
@@ -170,6 +172,12 @@ var LinksProccessor = function(communicator) {
 		communicator.getStorage(function(obj) {
 			_cacheData.featured = JSON.parse(obj.featured || '[]');
 		});
+
+		communicator.addListeners({
+			updateCache: function(res) {
+				_cacheData[res.key] = res.obj;
+			}
+		});
 	};
 
 	var initLinks = function(ctx) {
@@ -215,6 +223,16 @@ var LinksProccessor = function(communicator) {
 
 	var showHint = function(hint, a) {
 		_activeState.linkId = _activeState.topHint = hint.id;
+
+		// if unmarked we need to check presence in _cacheData.featured
+		var unmark = hint.querySelector('.mark.inactive');
+		if (unmark) {
+			if (!_.inArray(hint.getAttribute('rel'), _cacheData.featured, 'title')) {
+				unmark.className = 'mark';
+				unmark.innerText = 'Mark article';
+			}
+		}
+
 		hint.style.display = 'block';
 	};
 
@@ -265,6 +283,8 @@ var LinksProccessor = function(communicator) {
 			}
 		});
 
+		div.setAttribute('rel', a.getAttribute('reltitle'));
+
 		// Mark article as featured
 		div.querySelector('.mark').addEventListener('click', function(e) {
 			markArticle(a.getAttribute('reltitle'), a.href, e);
@@ -275,6 +295,8 @@ var LinksProccessor = function(communicator) {
 
 		// initialize links inside
 		initLinks(div);
+
+		console.log('D', div);
 
 		return _.all('body')[0].appendChild(div);
 	};
@@ -500,21 +522,33 @@ var ImagesProccessor = function() {
 * Object handling communication with chrome background page.
 */
 var Communicator = function() {
-	var c = chrome.extension;
-	return {
-		zoomChange: function(callback) {
-			c.onRequest.addListener(function(request, sender, sendResponse) {
-				sendResponse({});
-				callback(!!parseInt(request.zoomEnabled))
-			});
-		},
 
+	var c = chrome.extension;
+
+	var listeners = {};
+
+	var init = function() {
+		c.onRequest.addListener(function(request, sender, sendResponse) {
+			sendResponse({});
+			listeners[request.action](request.value);
+		});
+	};
+
+	init();
+
+	return {
 		getResource: function(path) {
 			return c.getURL(path);
 		},
 
 		getStorage: function(callback) {
 			c.sendRequest({localstorage: 1}, callback);
+		},
+
+		addListeners: function(obs) {
+			for (var key in obs) {
+				listeners[key] = obs[key];
+			}
 		},
 
 		setStorage: function(key, value, callback) {

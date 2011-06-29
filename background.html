@@ -53,7 +53,7 @@
 
 					if (r.value.index == -1) {
 						delete r.value.index;
-						arr.push(r.value);
+						arr.unshift(r.value);
 					}
 					else {
 						arr.splice(r.value.index, 1);

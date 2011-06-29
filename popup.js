@@ -96,7 +96,10 @@ POPUP.Controller = function() {
 			if (saveData) {
 				if (parseInt(storage.zoomEnabled) != saveData.zoomEnabled) {
 					chrome.tabs.getSelected(null, function(tab) {
-						chrome.tabs.sendRequest(tab.id, {zoomEnabled: saveData.zoomEnabled});
+						chrome.tabs.sendRequest(tab.id, {
+							action: 'zoomEnabled',
+							value:  saveData.zoomEnabled
+						});
 					});
 				}
 
@@ -108,19 +111,24 @@ POPUP.Controller = function() {
 			}
 
 			this.view.display('tpl_settings', storage);
+		},
+
+		removeAction: function(key, index) {
+			this.model.removeFromCollection(key, index);
+			this.page('home');
 		}
 	};
 };
 
 POPUP.Model = function() {
-	var storage = chrome.extension.getBackgroundPage().localStorage;
-//	var storage = {
-//		zoomEnabled: "1",
-//		hintsHistoryEnabled: "1",
-//		recursiveHints: "1",
-//		version: "2",
-//		featured: '[{"title":"Cartesian coordinates","href":"http://en.wikipedia.org/wiki/Cartesian_coordinates"},{"title":"Greeks","href":"http://en.wikipedia.org/wiki/Greeks"}]'
-//	};
+//	var storage = chrome.extension.getBackgroundPage().localStorage;
+	var storage = {
+		zoomEnabled: "1",
+		hintsHistoryEnabled: "1",
+		recursiveHints: "1",
+		version: "2",
+		featured: '[{"title":"Position (vector)","href":"http://en.wikipedia.org/wiki/Position_(vector)"},{"title":"Force","href":"http://en.wikipedia.org/wiki/Force"},{"title":"Vector space","href":"http://en.wikipedia.org/wiki/Vector_space"},{"title":"Negation","href":"http://en.wikipedia.org/wiki/Negation"},{"title":"Euclidean norm","href":"http://en.wikipedia.org/wiki/Euclidean_norm"},{"title":"Magnitude (mathematics)","href":"http://en.wikipedia.org/wiki/Magnitude_(mathematics)"}]'
+	};
 	return {
 		getStorage: function(key) {
 			return typeof key != 'undefined' ? storage[key] : storage;
@@ -132,6 +140,22 @@ POPUP.Model = function() {
 		 */
 		updateStorage: function(key, value) {
 			storage[key] = value;
+		},
+
+		removeFromCollection: function(key, index) {
+			var collection = JSON.parse(storage[key]) || [];
+			collection.splice(index, 1);
+			storage[key] = JSON.stringify(collection);
+
+			chrome.tabs.getSelected(null, function(tab) {
+				chrome.tabs.sendRequest(tab.id, {
+					action: 'updateCache',
+					value:  {
+						key: key,
+						obj: collection
+					}
+				});
+			});
 		}
 	};
 };

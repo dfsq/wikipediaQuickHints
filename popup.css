@@ -24,7 +24,7 @@ header h2 {
 	color: #222;
 	font-size: 20px;
 	padding: 0;
-	margin: 10px 0 15px;
+	margin: 10px 0 10px;
 	position: relative;
 }
 
@@ -65,17 +65,21 @@ section li.no-content {
 }
 
 section .featured span {
-	display: none;
+	display: inline-block;
+	visibility: hidden;
 	opacity: 0.6;
 	cursor: pointer;
-}
-
-section .featured span img {
-	margin: 0 0 -2px 0px;
+	color: #a52a2a;
+	padding: 0px 2px 1px 1px;
+	font-size: 13px;
+	font-weight: bold;
+	margin-bottom: -99px;
+	position: relative;
+	bottom: -1px;
 }
 
 section .featured:hover span {
-	display: inline-block;
+	visibility: visible;
 }
 
 section .featured span:hover {
