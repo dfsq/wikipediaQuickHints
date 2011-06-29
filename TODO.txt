@@ -1,8 +1,3 @@
-1. Show list insetead of paragraph if there is any.
-Ex. http://ru.wikipedia.org/wiki/%D0%93%D1%80%D0%B0%D1%84%D0%B8%D0%BA
-
-2. Show image thumbnail in hint popup for articles which have one.
-
 3. Take into consideration text direction. For RTL direction hints are not positioned not correctly (eg., arabic language).
 
 5. Problematic articles:
