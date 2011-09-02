@@ -47,7 +47,7 @@ var _ = {
 	},
 
 	uniqueID: function() {
-		return 'hintId_' + new Date().getTime();
+		return 'hintId_' + (+new Date());
 	},
 
 	tpl: function(str, map) {
@@ -296,8 +296,6 @@ var LinksProccessor = function(communicator) {
 		// initialize links inside
 		initLinks(div);
 
-		console.log('D', div);
-
 		return _.all('body')[0].appendChild(div);
 	};
 
@@ -328,7 +326,7 @@ var LinksProccessor = function(communicator) {
 		var curTop = 0;
 		do {
 			curLeft += obj.offsetLeft;
-			curTop += obj.offsetTop;
+			curTop  += obj.offsetTop;
 		}
 		while (obj = obj.offsetParent);
 

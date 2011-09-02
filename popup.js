@@ -111,6 +111,12 @@ POPUP.Controller = function() {
 			}
 
 			this.view.display('tpl_settings', storage);
+			document.getElementById('control-key-use').addEventListener('change', function(e) {
+				Array.prototype.slice.call(document.querySelectorAll('.control-key')).forEach(function(el) {
+					el.disabled = !e.target.checked;
+				});
+
+			}, false);
 		},
 
 		removeAction: function(key, index) {
@@ -121,14 +127,14 @@ POPUP.Controller = function() {
 };
 
 POPUP.Model = function() {
-//	var storage = chrome.extension.getBackgroundPage().localStorage;
-	var storage = {
-		zoomEnabled: "1",
-		hintsHistoryEnabled: "1",
-		recursiveHints: "1",
-		version: "2",
-		featured: '[{"title":"Position (vector)","href":"http://en.wikipedia.org/wiki/Position_(vector)"},{"title":"Force","href":"http://en.wikipedia.org/wiki/Force"},{"title":"Vector space","href":"http://en.wikipedia.org/wiki/Vector_space"},{"title":"Negation","href":"http://en.wikipedia.org/wiki/Negation"},{"title":"Euclidean norm","href":"http://en.wikipedia.org/wiki/Euclidean_norm"},{"title":"Magnitude (mathematics)","href":"http://en.wikipedia.org/wiki/Magnitude_(mathematics)"}]'
-	};
+	var storage = chrome.extension.getBackgroundPage().localStorage;
+//	var storage = {
+//		zoomEnabled: "1",
+//		hintsHistoryEnabled: "1",
+//		recursiveHints: "1",
+//		version: "2",
+//		featured: '[{"title":"Position (vector)","href":"http://en.wikipedia.org/wiki/Position_(vector)"},{"title":"Force","href":"http://en.wikipedia.org/wiki/Force"},{"title":"Vector space","href":"http://en.wikipedia.org/wiki/Vector_space"},{"title":"Negation","href":"http://en.wikipedia.org/wiki/Negation"},{"title":"Euclidean norm","href":"http://en.wikipedia.org/wiki/Euclidean_norm"},{"title":"Magnitude (mathematics)","href":"http://en.wikipedia.org/wiki/Magnitude_(mathematics)"}]'
+//	};
 	return {
 		getStorage: function(key) {
 			return typeof key != 'undefined' ? storage[key] : storage;
