@@ -100,6 +100,23 @@
 				<label for="recursive_hints">Enable hints within another hints</label>
 			</p>
 
+			<h4>Control key</h4>
+			<p class="option">
+				<input type="checkbox" id="control-key-use" class="left"><label for="control-key-use">Use</label>
+
+				<label>
+					<input type="radio" name="control_key" class="control-key"> Alt
+				</label>
+
+				<label>
+					<input type="radio" name="control_key" class="control-key"> Ctrl/Cmd
+				</label>
+
+				<label>
+					<input type="radio" name="control_key" class="control-key"> Shift
+				</label>
+			</p>
+
 			<div class="buttons">
 				<input type="button" value="Save" click="popup.page('settings', {
 					zoomEnabled: document.getElementById('image_zooming').checked + 0,
