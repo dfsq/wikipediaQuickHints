@@ -8,6 +8,7 @@ body {
 }
 
 * {font-family: Verdana;}
+a, input {outline: none !important;}
 
 #wiki {
 	position: relative;

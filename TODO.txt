@@ -1,4 +1,9 @@
-3. Take into consideration text direction. For RTL direction hints are not positioned not correctly (eg., arabic language).
+1. Change format of data in localStorage.
 
-5. Problematic articles:
+2. Add "More" link in definition popup with a next paragraph of the article (if any).
+
+3. Problematic articles:
 	http://en.wikipedia.org/wiki/Marcel_Berger
+	http://ru.wikipedia.org/wiki/Википедия:89417-6
+
+4. Take into consideration text direction. For RTL direction hints are not positioned correctly (eg., arabic language).

@@ -1,16 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<link rel="stylesheet" type="text/css" href="popup.css" />
-	<script type="text/javascript" src="popup.js"></script>
-	<script type="text/javascript" src="templ.js"></script>
-	<script type="text/javascript">
-		var popup;
-		window.onload = function() {
-			popup = new POPUP.Controller();
-			popup.init();
-		};
-	</script>
+	<meta charset="utf-8">
+	<link href="popup.css" rel="stylesheet">
 </head>
 <body>
 
@@ -18,20 +10,20 @@
 	<div id="wiki"></div>
 
 	<!-- HOME TEMPLATE -->
-	<div class="tpl" id="tpl_home">
+	<script type="text/html" class="tpl" id="tpl-home">
 		<header>
 			<h2 class="left">Marked articles</h2>
-			<span class="button right" title="Settings" onclick="popup.page('settings')">
+			<span class="button settings right" title="Settings" data-action="settings">
 				<img src="img/settings.png" alt="">
 			</span>
 			<div class="clr"></div>
 		</header>
 		<section>
 			<ul>
-				{% for key, link in links %}
+				{% for article in featured %}
 				<li class="featured">
-					<a href="javascript:void(0)" onclick="chrome.tabs.create({url: '{{ link.href }}'})">{{ link.title }}</a>
-					<span onclick="popup.page('remove', 'featured', '{{ key }}')">&times;</span>
+					<a href="javascript:void(0)" data-action="open|{{article.href}}">{{article.title}}</a>
+					<span data-action="remove|featured|{{article.uid}}">&times;</span>
 				</li>
 				{% else %}
 				<li class="no-content">No featured articles.</li>
@@ -40,38 +32,36 @@
 
 			<p class="paging">
 				{% if paging.prev %}
-				<a href="javascript:void(0)" onclick="popup.page('home', '{{ paging.prev }}')">&laquo; prev</a>
+				<a href="javascript:void(0)" data-action="home|{{paging.prev}}">&laquo; prev</a>
 				{% endif %}
 				{% if paging.next %}
-				<a href="javascript:void(0)" onclick="popup.page('home', '{{ paging.next }}')">next &raquo;</a>
+				<a href="javascript:void(0)" data-action="home|{{paging.next}}">next &raquo;</a>
 				{% endif %}
 			</p>
 
-			{% if parseInt(hintsHistory) %}
+			{% if hintsHistory %}
 			<h2>Hints history</h2>
 			<ul>
 				{% for hint in hints %}
-				<li><a href="javascript:void(0)" onclick="chrome.tabs.create({url: '{{ hint.href }}'})">{{ hint.title }}</a></li>
+				<li><a href="javascript:void(0)" data-action="open|{{hint.href}}">{{hint.title}}</a></li>
 				{% else %}
 				<li class="no-content">History is empty.</li>
 				{% endfor %}
 			</ul>
-
-
 			{% endif %}
 
 			<div class="buttons">
-				<input type="button" value="Close" onclick="popup.closePopup()">
+				<input type="button" value="Close" data-action="close">
 			</div>
 		</section>
-	</div>
+	</script>
 	<!--/HOME TEMPLATE -->
 
 	<!-- SETTINGS TEMPLATE -->
-	<div class="tpl" id="tpl_settings">
+	<div class="tpl" id="tpl-settings">
 		<header>
 			<h2 class="left">Settings</h2>
-			<span class="button featured right" title="Home" onclick="popup.page('home')">
+			<span class="button featured right" title="Home" data-action="home">
 				<img src="img/home.png" width="19" alt="">
 			</span>
 			<div class="clr"></div>
@@ -111,12 +101,12 @@
 			</p>
 
 			<div class="buttons">
-				<input type="button" value="Save" onclick="popup.page('settings', {
+				<input type="button" value="Save" click="popup.page('settings', {
 					zoomEnabled: document.getElementById('image_zooming').checked + 0,
 					hintsHistoryEnabled: document.getElementById('hints_history').checked + 0,
 					recursiveHints: document.getElementById('recursive_hints').checked + 0
 				})">
-				<input type="button" value="Close" onclick="popup.closePopup()">
+				<input type="button" value="Close" click="popup.closePopup()">
 			</div>
 
 		</section>
@@ -124,10 +114,10 @@
 	<!--/SETTINGS TEMPLATE -->
 
 	<!-- NEWS TEMPLATE -->
-	<div class="tpl" id="tpl_news">
+	<div class="tpl" id="tpl-news">
 		<header>
 			<h2 class="left">New in version {{ version }}</h2>
-			<span class="button featured right" title="Close news" onclick="popup.page('newsClose')">
+			<span class="button featured right" title="Close news" click="popup.page('newsClose')">
 				<img src="img/home.png" width="19" alt="">
 			</span>
 			<div class="clr"></div>
@@ -143,6 +133,11 @@
 		</section>
 	</div>
 	<!--/NEWS TEMPLATE -->
+
+	<script src="jquery-1.6.3.min.js"></script>
+	<script src="jquery.csspages.js"></script>
+	<script src="ashe.js"></script>
+	<script src="popup.js"></script>
 
 </body>
 </html>

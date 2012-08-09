@@ -1,7 +1,7 @@
 /**
  * Current version.
  */
-var _VERSION = 2.0;
+var VERSION = 2.0;
 
 /**
  * MVC structure implementation.
@@ -9,13 +9,14 @@ var _VERSION = 2.0;
 var POPUP = {};
 
 POPUP.Utils = {
-	Paging: function(init) {
+	Paging: function(opt) {
+		// TODO: paging for opbjects. Not so obvious like with arrays..
 		return {
-			total: init.total,
-			page: init.page,
-			prev: init.page > 1 ? init.page - 1 : false,
-			next: init.total > init.page * init.perPage ? init.page + 1 : false,
-			offset: (init.page - 1) * init.perPage
+			total: opt.total,
+			page:  opt.page,
+			prev:  opt.page > 1 ? opt.page - 1 : false,
+			next:  opt.total > opt.page * opt.perPage ? opt.page + 1 : false,
+			offset: (opt.page - 1) * opt.perPage
 		};
 	}
 };
@@ -27,108 +28,174 @@ POPUP.Controller = function() {
 	 */
 	var RECORDS_PER_PAGE = 5;
 
-	return {
+	/**
+	 * Model component.
+	 * @type {POPUP.Model}
+	 */
+	var model = new POPUP.Model();
+
+	/**
+	 * View component.
+	 * @type {POPUP.View}
+	 */
+	var view = new POPUP.View();
+
+	/**
+	 * Initialization.
+	 */
+	var __init = function() {
+
+		var version = model.getStorage('version');
+		(typeof version == 'undefined' || parseFloat(version) < VERSION)
+			? __page('news', VERSION)
+			: __page('home');
+
+		// Delegate click events
+		document.getElementById('wiki').addEventListener('click', function (e) {
+			var src = e.srcElement;
+			if (src.nodeName == 'IMG') src = src.parentNode;
+
+			var action = src.dataset['action'];
+			action && processAction(action);
+		}, false);
+	},
+
+	processAction = function(action) {
+		
+		var params = action.split('|');
+		switch (params[0]) {
+			case 'close':
+				__close();
+				break;
+			
+			case 'open':
+				chrome.tabs.create({url: params[1]});
+				break;
+			
+			default:
+				__page.apply(this, params);
+				break;
+		}
+	},
+
+	/**
+	 * Show specified page.
+	 */
+	__page = function() {
+		var args = Array.prototype.slice.call(arguments);
+		actions[args.shift()].apply(this, args);
+	},
+
+	/**
+	 * Close popup window.
+	 */
+	__close = function() {
+		window.close();
+	},
+
+	/**
+	 * Close new screen.
+	 */
+	__newsClose = function() {
+		model.updateStorage('version', VERSION);
+		chrome.extension.sendRequest({method: 'changeIcon'});
+		__page('home');
+	},
+
+	/**
+	 * Page actions.
+	 * @type {Object}
+	 */
+	actions = {
 		/**
-		 * Initialization.
+		 * Home page.
+		 * @param {Number} page
 		 */
-		init: function() {
-			this.model = new POPUP.Model();
-			this.view  = new POPUP.View();
-
-			var version = this.model.getStorage('version');
-			(typeof version == 'undefined' || parseFloat(version) < _VERSION) ? this.page('news', _VERSION) : this.page('home');
+		home: function(page) {
+			page = page ? parseInt(page) : 1;
+			var featured = JSON.parse(model.getStorage('featured') || '{}');
+			view.display('tpl-home', {
+				test: {name: 'ad'},
+				featured: featured,
+				hintsHistory: parseInt(model.getStorage('hintsHistoryEnabled')),
+				hints: []
+			});
+			
+			// Init pagination plugin
+//			$('#wiki .featured-list').cssPages({
+//				firstPage: page,
+//				itemsPerPage: 3,
+//				next: '#wiki .next',
+//				prev: '#wiki .prev'
+//			});
 		},
-
-		/**
-		 * Show specified page.
-		 */
-		page: function() {
-			var args = Array.prototype.slice.call(arguments);
-			this[args.shift() + 'Action'].apply(this, args);
-		},
-
-		/**
-		 * Close popup window.
-		 */
-		closePopup: function() {
-			window.close();
-		},
-
+		
 		/**
 		 * Display news after update.
 		 * @param version
 		 */
-		newsAction: function(version) {
-			this.view.display('tpl_news', {
+		news: function(version) {
+			view.display('tpl-news', {
 				version: version.toPrecision(2)
 			});
 		},
 
-		newsCloseAction: function() {
-			this.model.updateStorage('version', _VERSION);
-			chrome.extension.sendRequest({method: 'changeIcon'});
-			this.page('home');
-		},
-
 		/**
-		 * Actions goes here.
+		 * Settings page.
+		 * @param saveData
 		 */
-		homeAction: function(page) {
-			page = page ? parseInt(page) : 1;
-			var featured = JSON.parse(this.model.getStorage('featured') || '[]');
-			var paging = new POPUP.Utils.Paging({
-				total: featured.length,
-				page: page,
-				perPage: RECORDS_PER_PAGE
-			});
-
-			this.view.display('tpl_home', {
-				paging: paging,
-				links:  featured.splice(paging.offset, RECORDS_PER_PAGE),
-				hintsHistory: this.model.getStorage('hintsHistoryEnabled'),
-				hints: []
-			});
-		},
-
-		settingsAction: function(saveData) {
-			var storage = this.model.getStorage();
+		settings: function(saveData) {
+			
+			var storage = model.getStorage();
 
 			if (saveData) {
 				if (parseInt(storage.zoomEnabled) != saveData.zoomEnabled) {
 					chrome.tabs.getSelected(null, function(tab) {
 						chrome.tabs.sendRequest(tab.id, {
 							action: 'zoomEnabled',
-							value:  saveData.zoomEnabled
+							value: saveData.zoomEnabled
 						});
 					});
 				}
 
 				for (var key in saveData) {
-					this.model.updateStorage(key, saveData[key]);
+					model.updateStorage(key, saveData[key]);
 				}
 
-				return this.page('home');
+				return __page('home');
 			}
 
-			this.view.display('tpl_settings', storage);
+			view.display('tpl-settings', storage);
 		},
 
-		removeAction: function(key, index) {
-			this.model.removeFromCollection(key, index);
-			this.page('home');
+		/**
+		 * Remove from storage.
+		 * @param key
+		 * @param index
+		 */
+		remove: function(key, uid) {
+			model.removeFromCollection(key, uid);
+			__page('home');
 		}
+	};
+
+	return {
+		init: __init,
+		page: __page,
+		close: __close,
+		newsClose: __newsClose
 	};
 };
 
 POPUP.Model = function() {
-//	var storage = chrome.extension.getBackgroundPage().localStorage;
-	var storage = {
-		zoomEnabled: "1",
-		hintsHistoryEnabled: "1",
-		recursiveHints: "1",
-		version: "2",
-		featured: '[{"title":"Position (vector)","href":"http://en.wikipedia.org/wiki/Position_(vector)"},{"title":"Force","href":"http://en.wikipedia.org/wiki/Force"},{"title":"Vector space","href":"http://en.wikipedia.org/wiki/Vector_space"},{"title":"Negation","href":"http://en.wikipedia.org/wiki/Negation"},{"title":"Euclidean norm","href":"http://en.wikipedia.org/wiki/Euclidean_norm"},{"title":"Magnitude (mathematics)","href":"http://en.wikipedia.org/wiki/Magnitude_(mathematics)"}]'
-	};
+	var storage = chrome.extension.getBackgroundPage().localStorage;
+//	var storage = {
+//		zoomEnabled: "1",
+//		hintsHistoryEnabled: "1",
+//		recursiveHints: "1",
+//		version: "2",
+//		featured: '{"1342124281711":{"title":"Rage (игра)","href":"http://ru.wikipedia.org/wiki/Rage_(%D0%B8%D0%B3%D1%80%D0%B0)","uid":1342124281711}}'
+//	};
 	return {
 		getStorage: function(key) {
 			return typeof key != 'undefined' ? storage[key] : storage;
@@ -142,9 +209,9 @@ POPUP.Model = function() {
 			storage[key] = value;
 		},
 
-		removeFromCollection: function(key, index) {
+		removeFromCollection: function(key, uid) {
 			var collection = JSON.parse(storage[key]) || [];
-			collection.splice(index, 1);
+			delete collection[uid];
 			storage[key] = JSON.stringify(collection);
 
 			chrome.tabs.getSelected(null, function(tab) {
@@ -165,7 +232,12 @@ POPUP.View = function() {
 	return {
 		display: function(tplName, data) {
 			var tpl = document.getElementById(tplName).innerHTML;
-			container.innerHTML = Templ(tpl, data || {});
+			container.innerHTML = Ashe.parse(tpl, data);
 		}
 	};
 };
+
+/**
+ * Run popup code.
+ */
+new POPUP.Controller().init();

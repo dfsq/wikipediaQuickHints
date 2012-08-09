@@ -1,9 +1,10 @@
 /********************************************************************************
-* Copyright (C) 2010-2011 by Aliaksandr Astashenkau
+* Copyright (C) 2010-2012 by Aliaksandr Astashenkau
 * Email: dfsq.dfsq@gmail.com
 * @version 2.0
 * All rights reserved.
 ********************************************************************************/
+
 
 /** *****************************************************************************
 * Utils object.
@@ -46,8 +47,12 @@ var _ = {
 		}
 	},
 
+	getUID: function() {
+		return +new Date();
+	},
+	
 	uniqueID: function() {
-		return 'hintId_' + new Date().getTime();
+		return 'hintId_' + _.getUID();
 	},
 
 	tpl: function(str, map) {
@@ -74,67 +79,56 @@ var _ = {
 */
 var WikipediaQuickHints = function() {
 
-	var communicator;
-	var imageProccessor;
-	var linksProccessor;
+	var communicator,
+		imageProccessor,
+		linksProccessor,
 
-	return {
-		create: function() {
+	__init = function() {
+	
+		communicator    = new Communicator();
+		linksProccessor = new LinksProccessor(communicator);
+		imageProccessor = new ImagesProccessor();
 
-			communicator = new Communicator();
-			new CSSRules(communicator);
-			linksProccessor = new LinksProccessor(communicator);
-			imageProccessor = new ImagesProccessor();
-
-			communicator.getStorage(function(storage) {
-				if (parseInt(storage.zoomEnabled)) {
-					imageProccessor.run();
-				}
-			});
-
-			var _this = this;
-			communicator.addListeners({
-				zoomEnabled: function(is) {
-					!!parseInt(is) ? _this.enableZoom() : _this.disableZoom();
-				}
-			});
-		},
-
-		enableZoom: function() {
-			var zooms = _.all('.hintZoom');
-			if (zooms.length == 0) {
+		communicator.getStorage(function(storage) {
+			if (parseInt(storage.zoomEnabled)) {
 				imageProccessor.run();
 			}
-			else {
-				for (var i=0; i<zooms.length; i++) {
-					zooms[i].style.display = 'block';
-				}
-			}
-		},
+		});
 
-		disableZoom: function() {
-			var zooms = _.all('.hintZoom');
-			for (var i=0; i<zooms.length; i++) {
-				zooms[i].style.display = 'none';
+		var _this = this;
+		communicator.addListeners({
+			zoomEnabled: function(is) {
+				!!parseInt(is) ? _this.enableZoom() : _this.disableZoom();
+			}
+		});
+	},
+	
+	__enableZoom = function() {
+		var zooms = _.all('.hintZoom');
+		if (zooms.length == 0) {
+			imageProccessor.run();
+		}
+		else {
+			for (var i = 0; i < zooms.length; i++) {
+				zooms[i].style.display = 'block';
 			}
 		}
+	},
+	
+	__disableZoom = function() {
+		var zooms = _.all('.hintZoom');
+		for (var i = 0; i < zooms.length; i++) {
+			zooms[i].style.display = 'none';
+		}
+	};
+	
+	return {
+		init: __init,
+		enableZoom: __enableZoom,
+		disableZoom: __disableZoom
 	};
 };
 
-
-/** *****************************************************************************
-* Object responsible for creating CSS definitions.
-* Note. This is done because we can't refer to local extension images from
-* CSS file (chrome bug for CSS messages).
-*/
-var CSSRules = function(communicator) {
-	with (document.styleSheets[0]) {
-		insertRule('div.hintDescr div.more a.mark {background: url(' + communicator.getResource('img/star.png') + ') no-repeat 0 2px;}');
-		insertRule('div.hintDescr div.more a.mark.inactive {background-image: url(' + communicator.getResource('img/star_inactive.png') + ');}');
-		insertRule('div.hintDescr div.more a.read {background: url(' + communicator.getResource('img/read.png?1') + ') no-repeat 0 2px;}');
-		insertRule('a.image div.hintZoom {background: url(' + communicator.getResource('img/zoom.gif') + ') no-repeat 0 0;}');
-	}
-};
 
 /** *****************************************************************************
 * Object responsible for links hover hints proccessing.
@@ -160,7 +154,8 @@ var LinksProccessor = function(communicator) {
 	 *    featured: Array, list of featured articles.
 	 */
 	var _cacheData = {
-		featured: []
+		featured: [],
+		recursiveHints: 1
 	};
 
 	var init = function() {
@@ -171,6 +166,7 @@ var LinksProccessor = function(communicator) {
 	var initCache = function() {
 		communicator.getStorage(function(obj) {
 			_cacheData.featured = JSON.parse(obj.featured || '[]');
+			_cacheData.recursiveHints = +obj.recursiveHints;
 		});
 
 		communicator.addListeners({
@@ -224,7 +220,7 @@ var LinksProccessor = function(communicator) {
 	var showHint = function(hint, a) {
 		_activeState.linkId = _activeState.topHint = hint.id;
 
-		// if unmarked we need to check presence in _cacheData.featured
+		// If unmarked we need to check presence in _cacheData.featured
 		var unmark = hint.querySelector('.mark.inactive');
 		if (unmark) {
 			if (!_.inArray(hint.getAttribute('rel'), _cacheData.featured, 'title')) {
@@ -237,13 +233,21 @@ var LinksProccessor = function(communicator) {
 	};
 
 	var getDefinition = function(url, callback) {
+		
+		// The most important part, CSS query to get relevant information
+		var query = '#bodyContent [lang] > p, ' +
+					'#bodyContent > p, ' +
+					'#bodyContent > [lang] > ul:first-of-type',
+			html = null;
+				
 		_.xhr(url, function(x) {
 			try {
-				var nodes = x.responseXML.querySelectorAll('#bodyContent > p, #bodyContent > ul:first-of-type');
-				var html  = getFirstPar(nodes);
+				var nodes = x.responseXML.querySelectorAll(query);
+				html  = getFirstPar(nodes);
 			}
 			catch (e) {
-				var html = null;
+				// Could not get definition. Show some nice error message instead?
+				// TODO: suggest a user to send this problematic URL to developer to fix a bug?
 			}
 			callback(html);
 		});
@@ -252,8 +256,8 @@ var LinksProccessor = function(communicator) {
 	var getFirstPar = function(nodes) {
 		if (!nodes.length) return false;
 
-		var i = 0;
-		var p = nodes[i];
+		var i = 0,
+			p = nodes[i];
 
 		while (/^(\s*|<br\s?.*?\/?>)*$/.test(p.innerHTML) || p.querySelector('#coordinates')) {
 			p = nodes[++i];
@@ -294,9 +298,9 @@ var LinksProccessor = function(communicator) {
 		div.style.top = (pos[1] + a.offsetHeight - 1) + 'px';
 
 		// initialize links inside
-		initLinks(div);
-
-		console.log('D', div);
+		if (_cacheData.recursiveHints) {
+			initLinks(div);
+		}
 
 		return _.all('body')[0].appendChild(div);
 	};
@@ -364,14 +368,10 @@ var LinksProccessor = function(communicator) {
 	 * @param href
 	 */
 	var markArticle = function(title, href, e) {
-		communicator.setStorage('featured', {
-			title: title,
-			href:  href,
-			index: _.findIndexInArray(title, _cacheData.featured, 'title')
-		}, function(obj) {
-			_cacheData.featured = obj.featured;
+		communicator.setStorage('featured', {title: title, href: href}, function(data) {
+			
 			var a = e.srcElement;
-			if (obj.removed) {
+			if (data.removed) {
 				a.className = 'mark';
 				a.innerText = 'Mark article';
 			}
@@ -379,6 +379,9 @@ var LinksProccessor = function(communicator) {
 				a.className = 'mark inactive';
 				a.innerText = 'Unmark article';
 			}
+
+			// Update cache
+			_cacheData.featured = data.featured;
 		});
 	};
 
@@ -523,43 +526,54 @@ var ImagesProccessor = function() {
 */
 var Communicator = function() {
 
-	var c = chrome.extension;
+	var c = chrome.extension,
+		listeners = {};
 
-	var listeners = {};
-
-	var init = function() {
+	(function() {
 		c.onRequest.addListener(function(request, sender, sendResponse) {
 			sendResponse({});
 			listeners[request.action](request.value);
 		});
-	};
-
-	init();
-
-	return {
-		getResource: function(path) {
-			return c.getURL(path);
-		},
-
-		getStorage: function(callback) {
-			c.sendRequest({localstorage: 1}, callback);
-		},
-
-		addListeners: function(obs) {
-			for (var key in obs) {
-				listeners[key] = obs[key];
-			}
-		},
-
-		setStorage: function(key, value, callback) {
-			c.sendRequest({
-				save: {
-					key: key,
-					value: value
-				},
-				_h: new Date().getTime()
-			}, callback);
+	})();
+	
+	var __getResource = function(path) {
+		return c.getURL(path);
+	},
+	
+	__getStorage = function(callback) {
+		c.sendRequest({localstorage: 1}, callback);
+	},
+	
+	__addListeners =  function(obs) {
+		for (var key in obs) {
+			listeners[key] = obs[key];
 		}
+	},
+
+	/**
+	 * Remember to localStorage.
+	 * @param {String} key Name of the key in storage.
+	 * @param {Object|Mix} value Data to store.
+	 * @param {function} Callback function.
+	 */
+	__setStorage = function(key, value, callback) {
+		
+		if (typeof value == 'object') {
+			value.uid = _.getUID();
+		}
+		
+		var data = {
+			save: {key: key, value: value},
+			_h: _.getUID()
+		};
+		c.sendRequest(data, callback);
+	};
+	
+	return {
+		getResource: __getResource,
+		getStorage:  __getStorage,
+		setStorage:  __setStorage,
+		addListeners: __addListeners
 	};
 };
 
@@ -567,4 +581,4 @@ var Communicator = function() {
 /** *****************************************************************************
 * Run application ...
 */
-new WikipediaQuickHints().create();
+new WikipediaQuickHints().init();

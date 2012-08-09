@@ -61,14 +61,17 @@ div.hintDescr div.more a.mark {
 	margin-right: 10px;
 	padding-left: 12px;
 	cursor: pointer;
+	background: url('chrome-extension://__MSG_@@extension_id__/img/star.png') no-repeat 0 2px;
 }
 
 div.hintDescr div.more a.mark.inactive {
 	color: #777;
+	background-image: url('chrome-extension://__MSG_@@extension_id__/img/star_inactive.png')
 }
 
 div.hintDescr div.more a.read {
 	padding-left: 12px;
+	background: url('chrome-extension://__MSG_@@extension_id__/img/read.png') no-repeat 0 2px;
 }
 
 div.hintDescr div.more a:visited {
@@ -92,7 +95,7 @@ a.image div.hintZoom {
 	width: 16px !important;
 	border: 1px #FFF solid;
 	opacity: 0.2;
-	background: url(data:image/gif;base64,R0lGODlhDwAPALMAANnZ2ZaWlqOjoxUVFXR0dISEhFpaWjg4OLS0tPX19QoKCv///87OziMjI+3t7R0dHSH5BAAAAAAALAAAAAAPAA8AAARNcMhJa1VqYEsNYsGRWUqwJMDiHKSxII9ioKSwiFpxj5IiJDENYUdRDAuYB8PRsChfgRSBN1E0fosskqNpNFwr6kWBeIkvB8aW22O7BxEAOw==)
+	background: url('chrome-extension://__MSG_@@extension_id__/img/zoom.gif') no-repeat 0 0;
 }
 
 a.image:hover div.hintZoom {
@@ -123,3 +126,5 @@ a.image:hover div.hintZoom {
 #hintOverlay .hintImgCont img {
 	border: 1px solid #CCC;
 }
+
+div.hintDescr div.more a.mark {background: url(' + communicator.getResource('img/star.png') + ') no-repeat 0 2px;}
