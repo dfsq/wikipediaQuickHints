@@ -30,13 +30,13 @@ var _ = {
 	},
 
 	xhr: function(url, callback) {
-		var x = new XMLHttpRequest();
-		x.onreadystatechange = function() {
-			x.readyState ^ 4 || callback(x);
-		};
-		x.open('get', url);
-		x.overrideMimeType('text/xml');
-		x.send();
+		var xhr = new XMLHttpRequest();
+		xhr.onload = function() {
+			callback(this.responseXML);
+		}
+		xhr.open("GET", url);
+		xhr.responseType = "document";
+		xhr.send();
 	},
 
 	delay: {
@@ -62,12 +62,12 @@ var _ = {
 	},
 
 	inArray: function(needle, haystack, key) {
-		return (this.findIndexInArray(needle, haystack, key) != -1);
+		return !!~this.findIndexInArray(needle, haystack, key);
 	},
 
 	findIndexInArray: function(needle, haystack, key) {
 		for (var i in haystack) {
-			if (haystack[i][key] == needle) return i;
+			if (haystack[i][key] === needle) return i;
 		}
 		return -1;
 	}
@@ -180,6 +180,7 @@ var LinksProccessor = function(communicator) {
 		var a = _.all('a', ctx);
 		for (var i=0; i<a.length; i++) {
 			var href = a[i].getAttribute('href');
+			
 			if (!href || href.search('/wiki/') == -1 || href.search('/wiki/') != 0 || /(.jpe?g|.gif|.png|.svg)$/i.test(href)) continue;
 
 			a[i].className = 'hintLink';
@@ -191,14 +192,15 @@ var LinksProccessor = function(communicator) {
 	};
 
 	var linkOver = function(e) {
-		var a = e.srcElement;
-		var hint = _.one(a.getAttribute('hintId'));
+		
+		var a = e.srcElement,
+			hint = _.one(a.getAttribute('hintId'));
 
 		if (_activeState.topHint && _activeState.topHint != a.getAttribute('hintid')) {
 			hideHint(_activeState.topHint);
 		}
 
-		a.setAttribute('over', 1);
+		a.setAttribute('over', '1');
 
 		_.delay.start(function() {
 			if (!a.getAttribute('over')) {
@@ -217,7 +219,7 @@ var LinksProccessor = function(communicator) {
 		}, 300);
 	};
 
-	var showHint = function(hint, a) {
+	var showHint = function(hint) {
 		_activeState.linkId = _activeState.topHint = hint.id;
 
 		// If unmarked we need to check presence in _cacheData.featured
@@ -240,9 +242,9 @@ var LinksProccessor = function(communicator) {
 					'#bodyContent > [lang] > ul:first-of-type',
 			html = null;
 				
-		_.xhr(url, function(x) {
+		_.xhr(url, function(xml) {
 			try {
-				var nodes = x.responseXML.querySelectorAll(query);
+				var nodes = xml.querySelectorAll(query);
 				html  = getFirstPar(nodes);
 			}
 			catch (e) {
@@ -267,8 +269,8 @@ var LinksProccessor = function(communicator) {
 	};
 
 	var createHint = function(content, a) {
-		var pos = findPosition(a);
-		var div = _.create('div', {
+		var pos = findPosition(a),
+		div = _.create('div', {
 			id: _.uniqueID(),
 			className: 'hintDescr',
 			innerHTML: prepareHint(content, a),
@@ -291,7 +293,12 @@ var LinksProccessor = function(communicator) {
 
 		// Mark article as featured
 		div.querySelector('.mark').addEventListener('click', function(e) {
-			markArticle(a.getAttribute('reltitle'), a.href, e);
+			if (this.className.match(/\binactive\b/)) {
+				unmarkArticle(a.getAttribute('reltitle'), a.href, e);
+			}
+			else {
+				markArticle(a.getAttribute('reltitle'), a.href, e);
+			}
 		}, false);
 
 		div.style.left = pos[0] + 'px';
@@ -369,22 +376,20 @@ var LinksProccessor = function(communicator) {
 	 */
 	var markArticle = function(title, href, e) {
 		communicator.setStorage('featured', {title: title, href: href}, function(data) {
-			
-			var a = e.srcElement;
-			if (data.removed) {
-				a.className = 'mark';
-				a.innerText = 'Mark article';
-			}
-			else {
-				a.className = 'mark inactive';
-				a.innerText = 'Unmark article';
-			}
-
-			// Update cache
-			_cacheData.featured = data.featured;
+			e.srcElement.innerText = 'Unmark article';
+			e.srcElement.className = 'mark inactive';
+			_cacheData.featured = JSON.parse(data.featured);
 		});
 	};
-
+	
+	var unmarkArticle = function(title, href, e) {
+		communicator.setStorage('featured', {title: title, remove: 1}, function(data) {
+			e.srcElement.innerText = 'Mark article';
+			e.srcElement.className = 'mark';
+			_cacheData.featured = JSON.parse(data.featured);
+		})
+	};
+	
 	init();
 };
 
@@ -410,16 +415,20 @@ var ImagesProccessor = function() {
 		e.preventDefault();
 
 		var url = this.parentNode.href;
-		_.xhr(url, function(x) {
+		_.xhr(url, function(xml) {
 
-			var imgObj = x.responseXML.querySelector('#file a img');
-			var dim = getDimentions(imgObj.width, imgObj.height);
-
-			var img = _.create('img', {
-				width: dim.width,
-				height: dim.height,
-				src: imgObj.src
-			});
+			var imgObj = xml.querySelector('#file a img');
+			
+			var	attrs = imgObj.attributes,
+				getAttr = function(name) {
+					return attrs.getNamedItem(name).nodeValue;
+				},
+				dim = getDimentions(+getAttr('width'), +getAttr('height')),
+				img = _.create('img', {
+					src: getAttr('src'),
+					width:  dim.width,
+					height: dim.height
+				});
 
 			var overlay = createOverlay();
 			overlay.style.marginLeft = -((dim.width + 14)/2) + 'px';

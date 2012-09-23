@@ -1,6 +1,6 @@
 ## Wikipedia Quick Hints ##
 
-Chrome extension which makes reading Wikipedia more convinient by providing pop up abstract for any link within Wikipedia article.
+Chrome extension which makes reading Wikipedia more convinient by providing popup abstract for any link within Wikipedia article.
 
 [View extension gallery page].
 

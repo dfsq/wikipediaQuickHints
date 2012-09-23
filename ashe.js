@@ -1,6 +1,11 @@
-/**
- * Ashe.js is a smart, fast, eval-less javascript templating library.
- */
+/********************************************************************************
+* Copyright (C) 2012 by Aliaksandr Astashenkau
+* Email: dfsq.dfsq@gmail.com
+* @version 2.0
+* @link https://github.com/dfsq/Ashe
+* All rights reserved.
+********************************************************************************/
+
 (function() {
 	
 	"use strict";

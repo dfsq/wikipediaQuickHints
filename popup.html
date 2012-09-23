@@ -19,7 +19,7 @@
 			<div class="clr"></div>
 		</header>
 		<section>
-			<ul>
+			<ul class="featured-list">
 				{% for article in featured %}
 				<li class="featured">
 					<a href="javascript:void(0)" data-action="open|{{article.href}}">{{article.title}}</a>
@@ -31,24 +31,9 @@
 			</ul>
 
 			<p class="paging">
-				{% if paging.prev %}
-				<a href="javascript:void(0)" data-action="home|{{paging.prev}}">&laquo; prev</a>
-				{% endif %}
-				{% if paging.next %}
-				<a href="javascript:void(0)" data-action="home|{{paging.next}}">next &raquo;</a>
-				{% endif %}
+				<span class="prev">&laquo; prev</span>
+				<span class="next">next &raquo;</span>
 			</p>
-
-			{% if hintsHistory %}
-			<h2>Hints history</h2>
-			<ul>
-				{% for hint in hints %}
-				<li><a href="javascript:void(0)" data-action="open|{{hint.href}}">{{hint.title}}</a></li>
-				{% else %}
-				<li class="no-content">History is empty.</li>
-				{% endfor %}
-			</ul>
-			{% endif %}
 
 			<div class="buttons">
 				<input type="button" value="Close" data-action="close">
@@ -70,60 +55,18 @@
 
 			<h4>Image zooming</h4>
 			<p class="option">
-				{% if parseInt(zoomEnabled) %}
-				<input type="checkbox" id="image_zooming" class="left" checked>
-				{% else %}
-				<input type="checkbox" id="image_zooming" class="left">
-				{% endif %}
+                {% if zoomEnabled %}
+                <input type="checkbox" id="image_zooming" class="left" checked>
+                {% else %}
+                <input type="checkbox" id="image_zooming" class="left">
+                {% endif %}
 				<label for="image_zooming" class="left">Enable image zooming</label>
 				<div class="clr"></div>
 			</p>
 
-			<h4>Hints history</h4>
-			<p class="option">
-				{% if parseInt(hintsHistoryEnabled) %}
-				<input type="checkbox" id="hints_history" class="left" checked>
-				{% else %}
-				<input type="checkbox" id="hints_history" class="left">
-				{% endif %}
-				<label for="hints_history">Enable hints history</label>
-				<div class="clr"></div>
-			</p>
-
-			<h4>Recursive hints</h4>
-			<p class="option">
-				{% if parseInt(recursiveHints) %}
-				<input type="checkbox" id="recursive_hints" class="left" checked>
-				{% else %}
-				<input type="checkbox" id="recursive_hints" class="left">
-				{% endif %}
-				<label for="recursive_hints">Enable hints within another hints</label>
-			</p>
-
-			<h4>Control key</h4>
-			<p class="option">
-				<input type="checkbox" id="control-key-use" class="left"><label for="control-key-use">Use</label>
-
-				<label>
-					<input type="radio" name="control_key" class="control-key"> Alt
-				</label>
-
-				<label>
-					<input type="radio" name="control_key" class="control-key"> Ctrl/Cmd
-				</label>
-
-				<label>
-					<input type="radio" name="control_key" class="control-key"> Shift
-				</label>
-			</p>
-
 			<div class="buttons">
-				<input type="button" value="Save" click="popup.page('settings', {
-					zoomEnabled: document.getElementById('image_zooming').checked + 0,
-					hintsHistoryEnabled: document.getElementById('hints_history').checked + 0,
-					recursiveHints: document.getElementById('recursive_hints').checked + 0
-				})">
-				<input type="button" value="Close" click="popup.closePopup()">
+				<input type="button" value="Save" data-action="settings|save">
+				<input type="button" value="Close" data-action="close">
 			</div>
 
 		</section>
@@ -134,14 +77,13 @@
 	<div class="tpl" id="tpl-news">
 		<header>
 			<h2 class="left">New in version {{ version }}</h2>
-			<span class="button featured right" title="Close news" click="popup.page('newsClose')">
+			<span class="button featured right" title="Close news" data-action="closeNews">
 				<img src="img/home.png" width="19" alt="">
 			</span>
 			<div class="clr"></div>
 		</header>
 		<section>
 			<ul class="news">
-				<li>Hints histiry added - history of articles you interested in.</li>
 				<li>Marked articles list added - articles you would like to read later.</li>
 				<li>Useful feature - hints within another hints!</li>
 				<li>Settigs section simplified. Only important settings user realy need left.</li>

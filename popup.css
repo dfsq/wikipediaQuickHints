@@ -18,7 +18,9 @@ a, input {outline: none !important;}
 	font: normal 12px Verdana;
 	border-radius: 3px;
 	-webkit-box-shadow: 1px 1px 3px #DDD;
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0.49, rgb(255, 255, 255)), color-stop(1, rgb(240, 240, 240)))
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0.49, rgb(255, 255, 255)), color-stop(1, rgb(240, 240, 240)));
+	height: auto;
+	-webkit-transition: height .5s ease; 
 }
 
 header h2 {
@@ -65,6 +67,12 @@ section li.no-content {
 	color: #444;
 }
 
+section .featured {
+	display: none;
+}
+section .featured.current {
+	display: block;
+}
 section .featured span {
 	display: inline-block;
 	visibility: hidden;
@@ -137,21 +145,25 @@ section .buttons input:last-child {
 }
 
 section p.paging {
-	text-align: right;
+	text-align: left;
 }
 
-section p.paging a {
+section p.paging span {
 	text-decoration: none;
 	color: #333;
+	cursor: pointer;
+}
+section p.paging span.btn-disabled {
+	display: none;
 }
 
-section p.paging a:hover {
+section p.paging span:hover {
 	color: #111;
 	text-decoration: underline;
 }
 
-section p.paging a:last-child {
-	margin-left: 5px;
+section p.paging span:first-child {
+	margin-right: 5px;
 }
 
 section ul.news li {

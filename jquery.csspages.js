@@ -30,18 +30,38 @@
         return this.each(function() {
             var page = options.firstPage - 1,
                 $items = $(this).find(options.items);
-            
+			
             $(options.next).bind('click.paginator', function() {
-                if ((page + 1) * options.itemsPerPage >= $items.length) return;
+                if ($(this).hasClass('btn-disabled')) return;
                 changePage($items, ++page);
+                if ((page + 1) * options.itemsPerPage >= $items.length) {
+                    $(this).addClass('btn-disabled');
+                }
+                if (page > 0) {
+                    $(options.prev).removeClass('btn-disabled');
+                }
             });
             
             $(options.prev).bind('click.paginator', function() {
-                if (page == 0) return;
+                if ($(this).hasClass('btn-disabled')) return; 
                 changePage($items, --page);
+                if (page == 0) {
+                    $(this).addClass('btn-disabled');
+                }
+                if ($items.length > page * options.itemsPerPage) {
+                    $(options.next).removeClass('btn-disabled');
+                }
             });
             
             changePage($items, page);
+            
+            if (page == 0) {
+                $(options.prev).addClass('btn-disabled');
+            }
+            if ((page + 1) * options.itemsPerPage >= $items.length) {
+                $(options.next).addClass('btn-disabled');
+            }
+            
         });
     };
 })(jQuery);

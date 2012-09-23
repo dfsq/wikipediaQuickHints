@@ -44,7 +44,22 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 			// Remember data
 			var data = JSON.parse(localStorage[r.key] || '{}');
-			data[r.value.uid] = r.value;
+			
+			if (!r.value.remove) {
+				data[r.value.uid] = r.value;
+			}
+			else {
+				// remove from local storage
+				var key;
+				for (var i in data) {
+					if (data[i].title === r.value['title']) {
+						key = i;
+						break;
+					}
+				}
+				delete data[key];
+			}
+			
 			localStorage[r.key] = JSON.stringify(data);
 			
 			sendResponse({

@@ -24,7 +24,8 @@
 	},
 	"permissions": [
 		"tabs",
-		"http://commons.wikimedia.org/"
+		"http://commons.wikimedia.org/",
+		"http://upload.wikimedia.org/"
 	],
 	"web_accessible_resources": [
 		"img/star.png",
