@@ -1,4 +1,4 @@
-var VERSION = 2.0;
+var VERSION = 2.1;
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 

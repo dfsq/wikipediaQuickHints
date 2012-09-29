@@ -48,6 +48,25 @@ div.hintDescr {
 	box-shadow: 2px 2px 2px #666;
 }
 
+div.hintDescr .content:after {
+	content: ".";
+	display: block;
+	clear: both;
+	visibility: hidden;
+	line-height: 0;
+	height: 0;
+}
+
+div.hintDescr .image {
+	float: right;
+	margin-left: 7px;
+	padding: 1px;
+	border: 1px #BBB solid;
+}
+div.hintDescr .image img {
+	max-width: 93px;
+}
+
 div.hintDescr div.more {
 	margin-top: 2px;
 	text-align: right;

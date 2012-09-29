@@ -207,13 +207,13 @@ var LinksProccessor = function(communicator) {
 				return;
 			}
 			if (hint) {
-				showHint(hint, a);
+				showHint(hint);
 			}
 			else {
-				getDefinition(a.href, function(text) {
-					hint = createHint(text, a);
+				getDefinition(a.href, function(text, image) {
+					hint = createHint({text: text, image: image, link: a});
 					a.setAttribute('hintId', hint.id);
-					showHint(hint, a);
+					showHint(hint);
 				});
 			}
 		}, 300);
@@ -236,30 +236,36 @@ var LinksProccessor = function(communicator) {
 
 	var getDefinition = function(url, callback) {
 		
-		// The most important part, CSS query to get relevant information
-		var query = '#bodyContent [lang] > p, ' +
-					'#bodyContent > p, ' +
-					'#bodyContent > [lang] > ul:first-of-type',
-			html = null;
-				
+		var text, image;
+		
 		_.xhr(url, function(xml) {
 			try {
-				var nodes = xml.querySelectorAll(query);
-				html  = getFirstPar(nodes);
+				text = getText(xml);
+				image = getImage(xml);
 			}
 			catch (e) {
-				// Could not get definition. Show some nice error message instead?
-				// TODO: suggest a user to send this problematic URL to developer to fix a bug?
+				// Error occured..
 			}
-			callback(html);
+			callback(text, image);
 		});
+	};
+
+	/**
+	 * Query XML to get the text data. 
+	 * @param xml
+	 */
+	var getText = function(xml) {
+		var query = 
+			'#bodyContent [lang] > p, ' +
+			'#bodyContent > p, ' +
+			'#bodyContent > [lang] > ul:first-of-type';
+		return getFirstPar(xml.querySelectorAll(query));
 	};
 
 	var getFirstPar = function(nodes) {
 		if (!nodes.length) return false;
 
-		var i = 0,
-			p = nodes[i];
+		var i = 0, p = nodes[i];
 
 		while (/^(\s*|<br\s?.*?\/?>)*$/.test(p.innerHTML) || p.querySelector('#coordinates')) {
 			p = nodes[++i];
@@ -267,19 +273,39 @@ var LinksProccessor = function(communicator) {
 
 		return nodes[i+1].nodeName == 'ul' ? p.innerHTML + nodes[i+1].outerHTML : p.innerHTML;
 	};
+	
+	var getImage = function(xml) {
+		var query = 
+			'#bodyContent table.infobox .image img,' +
+			'#bodyContent .thumb .image img',
+		image = xml.querySelector(query);
+		return image ? image.src : null;
+	};
 
-	var createHint = function(content, a) {
-		var pos = findPosition(a),
+	/**
+	 * @param {Object} param
+	 * @param {Sting} param.text HTML content to show.
+	 * @param {HTMLAnchorElement} param.link Hovered link element.
+	 * @param {String} param.image SRC of the image to show.
+	 * @return {XML|Node}
+	 */
+	var createHint = function(param) {
+		
+		var pos = findPosition(param.link),
 		div = _.create('div', {
 			id: _.uniqueID(),
 			className: 'hintDescr',
-			innerHTML: prepareHint(content, a),
+			innerHTML: prepareHint(param),
 			onmouseover: function() {
 				_activeState.hintId = this.id;
 			},
 			onmouseout: function(e) {
 				var tg = e.srcElement;
-				if (tg.nodeName != 'DIV' || tg.className == 'more') return;
+				if (
+					tg.nodeName != 'DIV' ||
+					tg.className == 'more' ||
+					tg.className == 'content' ||
+					tg.className == 'image') return;
 				var reltg = e.relatedTarget;
 				while (reltg != tg && reltg.nodeName != 'BODY') reltg = reltg.parentNode;
 				if (reltg == tg) return;
@@ -289,20 +315,20 @@ var LinksProccessor = function(communicator) {
 			}
 		});
 
-		div.setAttribute('rel', a.getAttribute('reltitle'));
+		div.setAttribute('rel', param.link.getAttribute('reltitle'));
 
 		// Mark article as featured
 		div.querySelector('.mark').addEventListener('click', function(e) {
 			if (this.className.match(/\binactive\b/)) {
-				unmarkArticle(a.getAttribute('reltitle'), a.href, e);
+				unmarkArticle(param.link.getAttribute('reltitle'), param.link.href, e);
 			}
 			else {
-				markArticle(a.getAttribute('reltitle'), a.href, e);
+				markArticle(param.link.getAttribute('reltitle'), param.link.href, e);
 			}
 		}, false);
 
 		div.style.left = pos[0] + 'px';
-		div.style.top = (pos[1] + a.offsetHeight - 1) + 'px';
+		div.style.top = (pos[1] + param.link.offsetHeight - 1) + 'px';
 
 		// initialize links inside
 		if (_cacheData.recursiveHints) {
@@ -312,23 +338,21 @@ var LinksProccessor = function(communicator) {
 		return _.all('body')[0].appendChild(div);
 	};
 
-	var prepareHint = function(text, a) {
-		if (!text) {
-			text = 'Can not get definition for this term. Some articles do not have appropriate structure.';
-		}
-
+	var prepareHint = function(param) {
+		
 		var template =
-			"{text}" +
+			"<div class='content'>{image}{text}</div>" +
 			"<div class='more'>" +
 				"<a class='mark {inactive}'>{marktext}</span>" +
 				"<a class='read' href='{href}' target='_blank'>Read article</a>" +
-			"</div>";
+			"</div>",
 
-		var mark = _.inArray(a.getAttribute('reltitle'), _cacheData.featured, 'title') ? 'inactive' : '';
+		mark = _.inArray(param.link.getAttribute('reltitle'), _cacheData.featured, 'title') ? 'inactive' : '';
 
 		return _.tpl(template, {
-			text: text,
-			href: a.href,
+			image: param.image ? '<div class="image"><img src="' + param.image + '"></div>' : '',
+			text: param.text || 'Can not get definition for this term. Some articles do not have appropriate structure.',
+			href: param.link.href,
 			inactive: mark,
 			marktext: mark ? 'Unmark article' : 'Mark article'
 		});

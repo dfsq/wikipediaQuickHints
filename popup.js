@@ -8,7 +8,7 @@
 /**
  * Current version.
  */
-var VERSION = 2.0;
+var VERSION = 2.1;
 
 /**
  * MVC structure implementation.
