@@ -9,7 +9,7 @@
 	"content_scripts": [{
 		"js": ["wikipediaQuickHints.js"],
 		"css": ["hint.css"],
-		"matches": ["http://*.wikipedia.org/wiki/*"],
+		"matches": ["http://*.wikipedia.org/wiki/*", "https://*.wikipedia.org/wiki/*"],
 		"run_at": "document_idle"
 	}],
 	"icons": {
