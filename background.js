@@ -1,4 +1,4 @@
-var VERSION = 2.1;
+var VERSION = 2.15;
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
@@ -11,7 +11,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 		});
 		chrome.pageAction.setTitle({
 			tabId: tabId,
-			title: "See what's new in version " + VERSION.toPrecision(2)
+			title: "See what's new in version " + VERSION/*VERSION.toPrecision(2)*/
 		});
 	}
 	chrome.pageAction.show(tabId);
@@ -20,11 +20,13 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 		/**
 		 * Store in local storage next information.
 		 * 	zoomEnabled 0|1
+		 * 	questionMarks 0|1
 		 * 	hintsHistoryEnabled 0|1
 		 * 	featuredArticles [{name: 'Article name', url: 'http://test.com'}, ...]
 		 */
 		if (request.localstorage) {
 			localStorage.zoomEnabled = (typeof localStorage.zoomEnabled != 'undefined') ? parseInt(localStorage.zoomEnabled) : 1
+			localStorage.questionMarks = (typeof localStorage.questionMarks != 'undefined') ? parseInt(localStorage.questionMarks) : 1
 			localStorage.hintsHistoryEnabled = (typeof localStorage.hintsHistoryEnabled != 'undefined') ? parseInt(localStorage.hintsHistoryEnabled) : 1,
 			localStorage.recursiveHints = (typeof localStorage.recursiveHints != 'undefined') ? parseInt(localStorage.recursiveHints) : 1
 			sendResponse(localStorage);

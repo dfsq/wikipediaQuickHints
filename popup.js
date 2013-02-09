@@ -8,7 +8,7 @@
 /**
  * Current version.
  */
-var VERSION = 2.1;
+var VERSION = 2.15;
 
 /**
  * MVC structure implementation.
@@ -103,7 +103,7 @@ POPUP.Controller = function() {
 		 */
 		news: function(version) {
 			view.display('tpl-news', {
-				version: version.toPrecision(2)
+				version: version
 			});
 		},
 
@@ -125,13 +125,26 @@ POPUP.Controller = function() {
 						});
 					});
 				}
-
 				model.updateStorage('zoomEnabled', zoomEnabled);
+				
+				var questionMarks = +document.getElementById('question-marks').checked;
+				if (+storage.questionMarks != questionMarks) {
+					chrome.tabs.getSelected(null, function(tab) {
+						chrome.tabs.sendRequest(tab.id, {
+							action: 'questionMarks',
+							value: questionMarks
+						});
+					});
+				}
+				model.updateStorage('questionMarks', questionMarks);
 
 				return toPage('home');
 			}
 
-			view.display('tpl-settings', {zoomEnabled: !!+storage.zoomEnabled});
+			view.display('tpl-settings', {
+				zoomEnabled: !!+storage.zoomEnabled,
+				questionMarks: !!+storage.questionMarks
+			});
 		},
 
 		/**
@@ -184,6 +197,15 @@ POPUP.Model = function() {
 		 */
 		updateStorage: function(key, value) {
 			storage[key] = value;
+			chrome.tabs.getSelected(null, function(tab) {
+				chrome.tabs.sendRequest(tab.id, {
+					action: 'updateCache',
+					value:  {
+						key: key,
+						obj: value
+					}
+				});
+			});
 		},
 
 		removeFromCollection: function(key, uid) {

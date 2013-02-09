@@ -1,3 +1,6 @@
 1. Add "More" link in definition popup with a next paragraph of the article (if any).
 
 2. Take into consideration text direction. For RTL direction hints are not positioned correctly (eg., arabic language).
+
+3. Implement better positioning algorithm. Calcule offset like jQuery does. 
+Test on the page http://en.wikipedia.org/wiki/Mathematical_singularity, "complex differentiable function" link.

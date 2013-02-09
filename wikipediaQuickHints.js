@@ -1,7 +1,7 @@
 /********************************************************************************
 * Copyright (C) 2010-2012 by Aliaksandr Astashenkau
 * Email: dfsq.dfsq@gmail.com
-* @version 2.0
+* @version 2.15
 * All rights reserved.
 ********************************************************************************/
 
@@ -99,6 +99,9 @@ var WikipediaQuickHints = function() {
 		communicator.addListeners({
 			zoomEnabled: function(is) {
 				!!parseInt(is) ? _this.enableZoom() : _this.disableZoom();
+			},
+			questionMarks: function(is) {
+				_this.questionMarks(is);
 			}
 		});
 	},
@@ -120,12 +123,20 @@ var WikipediaQuickHints = function() {
 		for (var i = 0; i < zooms.length; i++) {
 			zooms[i].style.display = 'none';
 		}
+	},
+	
+	__questionMarks = function(is) {
+		var links = _.all('a.hintLink');
+		for (var i = 0; i < links.length; i++) {
+			links[i].className = is ? 'hintLink' : 'hintLink noIcon';
+		}
 	};
 	
 	return {
 		init: __init,
 		enableZoom: __enableZoom,
-		disableZoom: __disableZoom
+		disableZoom: __disableZoom,
+		questionMarks: __questionMarks
 	};
 };
 
@@ -134,7 +145,12 @@ var WikipediaQuickHints = function() {
 * Object responsible for links hover hints proccessing.
 */
 var LinksProccessor = function(communicator) {
-
+	/**
+	 * Timeout before showing a hint.
+	 * @type {Number} In miliseconds.
+	 */
+	var SHOW_TIMEOUT = 400;
+	
 	/**
 	 * @linkId [hintId attribute of the link] - currently hovered link.
 	 * If link is not hovered linkId = null.
@@ -155,18 +171,21 @@ var LinksProccessor = function(communicator) {
 	 */
 	var _cacheData = {
 		featured: [],
-		recursiveHints: 1
+		recursiveHints: 1,
+		questionMarks: 1
 	};
 
 	var init = function() {
-		initCache();
-		initLinks();
+		initCache(initLinks);
 	};
 
-	var initCache = function() {
+	var initCache = function(callback) {
 		communicator.getStorage(function(obj) {
 			_cacheData.featured = JSON.parse(obj.featured || '[]');
 			_cacheData.recursiveHints = +obj.recursiveHints;
+			_cacheData.questionMarks = +obj.questionMarks;
+			
+			callback();
 		});
 
 		communicator.addListeners({
@@ -183,7 +202,7 @@ var LinksProccessor = function(communicator) {
 			
 			if (!href || href.search('/wiki/') == -1 || href.search('/wiki/') != 0 || /(.jpe?g|.gif|.png|.svg)$/i.test(href)) continue;
 
-			a[i].className = 'hintLink';
+			a[i].className = _cacheData.questionMarks ? 'hintLink' : 'hintLink noIcon';
 			a[i].setAttribute('reltitle', a[i].getAttribute('title'));
 			a[i].removeAttribute('title');
 			a[i].addEventListener('mouseover', linkOver, false);
@@ -216,7 +235,7 @@ var LinksProccessor = function(communicator) {
 					showHint(hint);
 				});
 			}
-		}, 300);
+		}, SHOW_TIMEOUT);
 	};
 
 	var showHint = function(hint) {
@@ -358,9 +377,10 @@ var LinksProccessor = function(communicator) {
 		});
 	};
 
+	// TODO: make use of obj.getBoundingClientRect()
 	var findPosition = function(obj) {
-		var curLeft = 0;
-		var curTop = 0;
+		var curLeft = 0,
+			curTop = 0;
 		do {
 			curLeft += obj.offsetLeft;
 			curTop += obj.offsetTop;
@@ -384,7 +404,7 @@ var LinksProccessor = function(communicator) {
 		if (hintId) {
 			_.delay.start(function() {
 				hideHint(hintId);
-			}, 300);
+			}, SHOW_TIMEOUT);
 		}
 	};
 

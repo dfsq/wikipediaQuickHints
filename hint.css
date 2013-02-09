@@ -23,6 +23,9 @@ a.hintLink:after {
 	color: #0645AD;
 	opacity: 0.6;
 }
+a.hintLink.noIcon:after {
+	display: none;
+}
 
 a.hintLink:hover:after {
 	color: #a52a2a;
