@@ -1,4 +1,5 @@
-var VERSION = 2.15;
+var VERSION = 2.16,
+	VERSION_TEXT = '2.1.6';
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
@@ -11,7 +12,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 		});
 		chrome.pageAction.setTitle({
 			tabId: tabId,
-			title: "See what's new in version " + VERSION/*VERSION.toPrecision(2)*/
+			title: "See what's new in version " + VERSION_TEXT
 		});
 	}
 	chrome.pageAction.show(tabId);

@@ -1,14 +1,15 @@
 /********************************************************************************
 * Copyright (C) 2010-2012 by Aliaksandr Astashenkau
 * Email: dfsq.dfsq@gmail.com
-* @version 2.0
+* @version 1.2.6
 * All rights reserved.
 ********************************************************************************/
 
 /**
  * Current version.
  */
-var VERSION = 2.15;
+var VERSION = 2.16,
+	VERSION_TEXT = '2.1.6';
 
 /**
  * MVC structure implementation.
@@ -89,7 +90,7 @@ POPUP.Controller = function() {
 			});
 			
 			// Init pagination plugin
-			$('#wiki .featured-list').cssPages({
+			$('#wiki').find('.featured-list').cssPages({
 				firstPage: page,
 				itemsPerPage: RECORDS_PER_PAGE,
 				next: '#wiki .next',
@@ -150,7 +151,7 @@ POPUP.Controller = function() {
 		/**
 		 * Remove from storage.
 		 * @param key
-		 * @param index
+		 * @param uid
 		 */
 		remove: function(key, uid) {
 			model.removeFromCollection(key, uid);
@@ -171,7 +172,7 @@ POPUP.Controller = function() {
 
 		var version = model.getStorage('version');
 		(typeof version == 'undefined' || parseFloat(version) < VERSION)
-			? toPage('news', VERSION)
+			? toPage('news', VERSION_TEXT)
 			: toPage('home');
 
 		// Delegate click events

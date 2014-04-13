@@ -2,5 +2,5 @@
 
 2. Take into consideration text direction. For RTL direction hints are not positioned correctly (eg., arabic language).
 
-3. Implement better positioning algorithm. Calcule offset like jQuery does. 
+3. Implement better positioning algorithm. Calculate offset like jQuery does.
 Test on the page http://en.wikipedia.org/wiki/Mathematical_singularity, "complex differentiable function" link.
