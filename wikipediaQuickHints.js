@@ -33,7 +33,7 @@ var _ = {
 		var xhr = new XMLHttpRequest();
 		xhr.onload = function() {
 			callback(this.responseXML);
-		}
+		};
 		xhr.open("GET", url);
 		xhr.responseType = "document";
 		xhr.send();
@@ -303,7 +303,7 @@ var LinksProccessor = function(communicator) {
 
 	/**
 	 * @param {Object} param
-	 * @param {Sting} param.text HTML content to show.
+	 * @param {String} param.text HTML content to show.
 	 * @param {HTMLAnchorElement} param.link Hovered link element.
 	 * @param {String} param.image SRC of the image to show.
 	 * @return {XML|Node}
@@ -370,7 +370,7 @@ var LinksProccessor = function(communicator) {
 
 		return _.tpl(template, {
 			image: param.image ? '<div class="image"><img src="' + param.image + '"></div>' : '',
-			text: param.text || 'Can not get definition for this term. Some articles do not have appropriate structure.',
+			text: param.text || 'Can\'t get definition for this term. Some articles do not have appropriate structure.',
 			href: param.link.href,
 			inactive: mark,
 			marktext: mark ? 'Unmark article' : 'Mark article'
@@ -582,13 +582,11 @@ var Communicator = function() {
 	var c = chrome.extension,
 		listeners = {};
 
-	(function() {
-		c.onRequest.addListener(function(request, sender, sendResponse) {
-			sendResponse({});
-			listeners[request.action](request.value);
-		});
-	})();
-	
+	c.onRequest.addListener(function(request, sender, sendResponse) {
+		sendResponse({});
+		listeners[request.action](request.value);
+	});
+
 	var __getResource = function(path) {
 		return c.getURL(path);
 	},
@@ -606,8 +604,8 @@ var Communicator = function() {
 	/**
 	 * Remember to localStorage.
 	 * @param {String} key Name of the key in storage.
-	 * @param {Object|Mix} value Data to store.
-	 * @param {function} Callback function.
+	 * @param {Object|*} value Data to store.
+	 * @param {function} callback function.
 	 */
 	__setStorage = function(key, value, callback) {
 		
