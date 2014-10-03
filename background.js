@@ -1,5 +1,5 @@
-var VERSION = 2.16,
-	VERSION_TEXT = '2.1.6';
+var VERSION = 2.17,
+	VERSION_TEXT = '2.1.7';
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
@@ -47,7 +47,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 			// Remember data
 			var data = JSON.parse(localStorage[r.key] || '{}');
-			
+
 			if (!r.value.remove) {
 				data[r.value.uid] = r.value;
 			}
@@ -62,9 +62,9 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 				}
 				delete data[key];
 			}
-			
+
 			localStorage[r.key] = JSON.stringify(data);
-			
+
 			sendResponse({
 				featured: localStorage[r.key]
 			});

@@ -1,15 +1,15 @@
 /********************************************************************************
 * Copyright (C) 2010-2012 by Aliaksandr Astashenkau
 * Email: dfsq.dfsq@gmail.com
-* @version 1.2.6
+* @version 1.2.7
 * All rights reserved.
 ********************************************************************************/
 
 /**
  * Current version.
  */
-var VERSION = 2.16,
-	VERSION_TEXT = '2.1.6';
+var VERSION = 2.17,
+	VERSION_TEXT = '2.1.7';
 
 /**
  * MVC structure implementation.
@@ -39,17 +39,17 @@ POPUP.Controller = function() {
 	 * Dispatch actions by data-action attribute.
 	 */
 	processAction = function(action) {
-		
+
 		var params = action.split('|');
 		switch (params[0]) {
 			case 'close':
 				close();
 				break;
-			
+
 			case 'open':
 				chrome.tabs.create({url: params[1]});
 				break;
-			
+
 			default:
 				toPage.apply(this, params);
 				break;
@@ -88,7 +88,7 @@ POPUP.Controller = function() {
 				hintsHistory: parseInt(model.getStorage('hintsHistoryEnabled')),
 				hints: []
 			});
-			
+
 			// Init pagination plugin
 			$('#wiki').find('.featured-list').cssPages({
 				firstPage: page,
@@ -97,7 +97,7 @@ POPUP.Controller = function() {
 				prev: '#wiki .prev'
 			});
 		},
-		
+
 		/**
 		 * Display news after update.
 		 * @param version
@@ -113,9 +113,9 @@ POPUP.Controller = function() {
 		 * @param save
 		 */
 		settings: function(save) {
-			
+
 			var storage = model.getStorage();
-			
+
 			if (save) {
 				var zoomEnabled = +document.getElementById('image_zooming').checked;
 				if (parseInt(storage.zoomEnabled) != zoomEnabled) {
@@ -127,7 +127,7 @@ POPUP.Controller = function() {
 					});
 				}
 				model.updateStorage('zoomEnabled', zoomEnabled);
-				
+
 				var questionMarks = +document.getElementById('question-marks').checked;
 				if (+storage.questionMarks != questionMarks) {
 					chrome.tabs.getSelected(null, function(tab) {
@@ -157,14 +157,14 @@ POPUP.Controller = function() {
 			model.removeFromCollection(key, uid);
 			toPage('home');
 		},
-		
+
 		closeNews: function() {
 			model.updateStorage('version', VERSION);
 			chrome.extension.sendRequest({method: 'changeIcon'});
 			toPage('home');
 		}
 	};
-	
+
 	/**
 	 * Initialization.
 	 */
