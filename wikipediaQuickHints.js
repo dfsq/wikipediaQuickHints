@@ -275,9 +275,9 @@ var LinksProccessor = function(communicator) {
 	 */
 	var getText = function(xml) {
 		var query = 
-			'#bodyContent [lang] > p, ' +
-			'#bodyContent > p, ' +
-			'#bodyContent > [lang] > ul:first-of-type';
+			'#bodyContent [lang] #mw-content-text > div.mw-parser-output > p, ' +
+			'#bodyContent #mw-content-text > div.mw-parser-output > p, ' +
+			'#bodyContent [lang] > ul:first-of-type';
 		return getFirstPar(xml.querySelectorAll(query));
 	};
 
