@@ -171,3 +171,8 @@ section ul.news li {
 	padding-left: 20px;
 	margin-bottom: 6px;
 }
+
+.version-number {
+	font-size: 12px;
+	color: #999;
+}

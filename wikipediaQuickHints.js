@@ -1,7 +1,7 @@
 /********************************************************************************
 * Copyright (C) 2010-2012 by Aliaksandr Astashenkau
 * Email: dfsq.dfsq@gmail.com
-* @version 2.1.6
+* @version 2.2.0
 * All rights reserved.
 ********************************************************************************/
 
@@ -15,13 +15,13 @@ var _ = {
 	},
 
 	all: function(sel, ctx) {
-		ctx = (typeof ctx == 'undefined') ? document : ctx;
+		ctx = (typeof ctx === 'undefined') ? document : ctx;
 		return ctx.querySelectorAll(sel);
 	},
 
 	create: function(sel, props) {
 		var el = document.createElement(sel);
-		if (typeof props == 'object') {
+		if (typeof props === 'object') {
 			for (var a in props) {
 				el[a] = props[a];
 			}
@@ -108,7 +108,7 @@ var WikipediaQuickHints = function() {
 	
 	__enableZoom = function() {
 		var zooms = _.all('.hintZoom');
-		if (zooms.length == 0) {
+		if (zooms.length === 0) {
 			imageProccessor.run();
 		}
 		else {
@@ -176,7 +176,10 @@ var LinksProccessor = function(communicator) {
 	};
 
 	var init = function() {
-		initCache(initLinks);
+		initCache(function() {
+		  const body = document.querySelector('.mw-body')
+      initLinks(body)
+    });
 	};
 
 	var initCache = function(callback) {
@@ -200,7 +203,7 @@ var LinksProccessor = function(communicator) {
 		for (var i=0; i<a.length; i++) {
 			var href = a[i].getAttribute('href');
 			
-			if (!href || href.search('/wiki/') == -1 || href.search('/wiki/') != 0 || /(.jpe?g|.gif|.png|.svg)$/i.test(href)) continue;
+			if (!href || href.search('/wiki/') === -1 || href.search('/wiki/') !== 0 || /(.jpe?g|.gif|.png|.svg)$/i.test(href)) continue;
 
 			a[i].className = _cacheData.questionMarks ? 'hintLink' : 'hintLink noIcon';
 			a[i].setAttribute('reltitle', a[i].getAttribute('title'));
@@ -215,7 +218,7 @@ var LinksProccessor = function(communicator) {
 		var a = e.srcElement,
 			hint = _.one(a.getAttribute('hintId'));
 
-		if (_activeState.topHint && _activeState.topHint != a.getAttribute('hintid')) {
+		if (_activeState.topHint && _activeState.topHint !== a.getAttribute('hintid')) {
 			hideHint(_activeState.topHint);
 		}
 
@@ -263,7 +266,7 @@ var LinksProccessor = function(communicator) {
 				image = getImage(xml);
 			}
 			catch (e) {
-				// Error occured..
+				// Error occurred..
 			}
 			callback(text, image);
 		});
@@ -274,10 +277,11 @@ var LinksProccessor = function(communicator) {
 	 * @param xml
 	 */
 	var getText = function(xml) {
-		var query = 
-			'#bodyContent [lang] #mw-content-text > div.mw-parser-output > p, ' +
-			'#bodyContent #mw-content-text > div.mw-parser-output > p, ' +
-			'#bodyContent [lang] > ul:first-of-type';
+    var query = `
+      #bodyContent [lang] #mw-content-text > div.mw-parser-output > p,
+      #bodyContent #mw-content-text > div.mw-parser-output > p,
+      #bodyContent [lang] > ul:first-of-type
+    `;
 		return getFirstPar(xml.querySelectorAll(query));
 	};
 
@@ -290,7 +294,7 @@ var LinksProccessor = function(communicator) {
 			p = nodes[++i];
 		}
 
-		return nodes[i+1].nodeName == 'ul' ? p.innerHTML + nodes[i+1].outerHTML : p.innerHTML;
+		return nodes[i+1].nodeName === 'ul' ? p.innerHTML + nodes[i+1].outerHTML : p.innerHTML;
 	};
 	
 	var getImage = function(xml) {
@@ -321,13 +325,13 @@ var LinksProccessor = function(communicator) {
 			onmouseout: function(e) {
 				var tg = e.srcElement;
 				if (
-					tg.nodeName != 'DIV' ||
-					tg.className == 'more' ||
-					tg.className == 'content' ||
-					tg.className == 'image') return;
+					tg.nodeName !== 'DIV' ||
+					tg.className === 'more' ||
+					tg.className === 'content' ||
+					tg.className === 'image') return;
 				var reltg = e.relatedTarget;
-				while (reltg != tg && reltg.nodeName != 'BODY') reltg = reltg.parentNode;
-				if (reltg == tg) return;
+				while (reltg !== tg && reltg.nodeName !== 'BODY') reltg = reltg.parentNode;
+				if (reltg === tg) return;
 
 				_activeState.hintId = null;
 				hideHint(this.id);
@@ -409,15 +413,16 @@ var LinksProccessor = function(communicator) {
 	};
 
 	var hideHint = function(hintId) {
-		if (hintId == _activeState.hintId) return;
+		if (hintId === _activeState.hintId) return;
 		_.one(hintId).style.display = 'none';
 	};
 
-	/**
-	 * Remember link to Featured articles.
-	 * @param title
-	 * @param href
-	 */
+  /**
+   * Remember link to Featured articles.
+   * @param title
+   * @param href
+   * @param e
+   */
 	var markArticle = function(title, href, e) {
 		communicator.setStorage('featured', {title: title, href: href}, function(data) {
 			e.srcElement.innerText = 'Unmark article';
@@ -506,7 +511,7 @@ var ImagesProccessor = function() {
 	};
 
 	var removeByEsc = function(e) {
-		if (e.keyCode == 27) {
+		if (e.keyCode === 27) {
 			removeOverlay();
 		}
 	};
@@ -609,7 +614,7 @@ var Communicator = function() {
 	 */
 	__setStorage = function(key, value, callback) {
 		
-		if (typeof value == 'object') {
+		if (typeof value === 'object') {
 			value.uid = _.getUID();
 		}
 		

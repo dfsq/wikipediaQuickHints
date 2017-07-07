@@ -8,8 +8,8 @@
 /**
  * Current version.
  */
-var VERSION = 2.17,
-	VERSION_TEXT = '2.1.7';
+var VERSION = 2.20,
+	VERSION_TEXT = '2.2.0';
 
 /**
  * MVC structure implementation.
@@ -118,7 +118,7 @@ POPUP.Controller = function() {
 
 			if (save) {
 				var zoomEnabled = +document.getElementById('image_zooming').checked;
-				if (parseInt(storage.zoomEnabled) != zoomEnabled) {
+				if (parseInt(storage.zoomEnabled) !== zoomEnabled) {
 					chrome.tabs.getSelected(null, function(tab) {
 						chrome.tabs.sendRequest(tab.id, {
 							action: 'zoomEnabled',
@@ -129,7 +129,7 @@ POPUP.Controller = function() {
 				model.updateStorage('zoomEnabled', zoomEnabled);
 
 				var questionMarks = +document.getElementById('question-marks').checked;
-				if (+storage.questionMarks != questionMarks) {
+				if (Number(storage.questionMarks) !== questionMarks) {
 					chrome.tabs.getSelected(null, function(tab) {
 						chrome.tabs.sendRequest(tab.id, {
 							action: 'questionMarks',
@@ -144,7 +144,8 @@ POPUP.Controller = function() {
 
 			view.display('tpl-settings', {
 				zoomEnabled: !!+storage.zoomEnabled,
-				questionMarks: !!+storage.questionMarks
+				questionMarks: !!+storage.questionMarks,
+        version: VERSION_TEXT
 			});
 		},
 
@@ -171,14 +172,14 @@ POPUP.Controller = function() {
 	this.init = function() {
 
 		var version = model.getStorage('version');
-		(typeof version == 'undefined' || parseFloat(version) < VERSION)
+		(typeof version === 'undefined' || parseFloat(version) < VERSION)
 			? toPage('news', VERSION_TEXT)
 			: toPage('home');
 
 		// Delegate click events
 		document.getElementById('wiki').addEventListener('click', function (e) {
 			var src = e.srcElement;
-			if (src.nodeName == 'IMG') src = src.parentNode;
+			if (src.nodeName === 'IMG') src = src.parentNode;
 
 			var action = src.dataset['action'];
 			action && processAction(action);
@@ -190,7 +191,7 @@ POPUP.Model = function() {
 	var storage = chrome.extension.getBackgroundPage().localStorage;
 	return {
 		getStorage: function(key) {
-			return typeof key != 'undefined' ? storage[key] : storage;
+			return typeof key !== 'undefined' ? storage[key] : storage;
 		},
 
 		/**

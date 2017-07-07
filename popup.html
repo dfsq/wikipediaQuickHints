@@ -45,7 +45,7 @@
 	<!-- SETTINGS TEMPLATE -->
 	<div class="tpl" id="tpl-settings">
 		<header>
-			<h2 class="left">Settings</h2>
+			<h2 class="left">Settings <span class="version-number">v{{ version }}</span></h2>
 			<span class="button featured right" title="Home" data-action="home">
 				<img src="img/home.png" width="19" alt="">
 			</span>
@@ -64,7 +64,7 @@
 				<div class="clr"></div>
 			</p>
 
-            <h4>Question makrs</h4>
+			<h4>Question marks</h4>
             <p class="option">
                 {% if questionMarks %}
                 <input type="checkbox" id="question-marks" class="left" checked>
@@ -95,7 +95,7 @@
 		</header>
 		<section>
 			<ul class="news">
-				<li>Fixed issue with image zoom.</li>
+				<li>Fixed broken extension after Wikipedia changes in page structure.</li>
 			</ul>
 		</section>
 	</div>

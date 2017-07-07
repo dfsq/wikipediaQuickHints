@@ -1,11 +1,11 @@
-var VERSION = 2.17,
-	VERSION_TEXT = '2.1.7';
+var VERSION = 2.2,
+	VERSION_TEXT = '2.2.0';
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
-	if (tab.url.indexOf("wikipedia.org/wiki/") == -1) return;
+	if (tab.url.indexOf("wikipedia.org/wiki/") === -1) return;
 
-	if (typeof localStorage['version'] == 'undefined' || parseFloat(localStorage['version']) < VERSION) {
+	if (typeof localStorage['version'] === 'undefined' || parseFloat(localStorage['version']) < VERSION) {
 		chrome.pageAction.setIcon({
 			tabId: tabId,
 			path: 'img/16_new.png'
@@ -26,10 +26,10 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 		 * 	featuredArticles [{name: 'Article name', url: 'http://test.com'}, ...]
 		 */
 		if (request.localstorage) {
-			localStorage.zoomEnabled = (typeof localStorage.zoomEnabled != 'undefined') ? parseInt(localStorage.zoomEnabled) : 1
-			localStorage.questionMarks = (typeof localStorage.questionMarks != 'undefined') ? parseInt(localStorage.questionMarks) : 1
-			localStorage.hintsHistoryEnabled = (typeof localStorage.hintsHistoryEnabled != 'undefined') ? parseInt(localStorage.hintsHistoryEnabled) : 1,
-			localStorage.recursiveHints = (typeof localStorage.recursiveHints != 'undefined') ? parseInt(localStorage.recursiveHints) : 1
+			localStorage.zoomEnabled = (typeof localStorage.zoomEnabled !== 'undefined') ? parseInt(localStorage.zoomEnabled) : 1;
+			localStorage.questionMarks = (typeof localStorage.questionMarks !== 'undefined') ? parseInt(localStorage.questionMarks) : 1;
+			localStorage.hintsHistoryEnabled = (typeof localStorage.hintsHistoryEnabled !== 'undefined') ? parseInt(localStorage.hintsHistoryEnabled) : 1;
+			localStorage.recursiveHints = (typeof localStorage.recursiveHints !== 'undefined') ? parseInt(localStorage.recursiveHints) : 1;
 			sendResponse(localStorage);
 		}
 
@@ -42,7 +42,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 			// workaround. bug in chrome: event fired twice.
 			var check = localStorage._h || 0;
-			if (check == request._h) return;
+			if (check === request._h) return;
 			else localStorage._h = request._h;
 
 			// Remember data
@@ -73,7 +73,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 		/**
 		 * Change action icon.
 		 */
-		else if (request.method == 'changeIcon') {
+		else if (request.method === 'changeIcon') {
 			chrome.pageAction.setIcon({
 				tabId: tabId,
 				path: 'img/16.png'

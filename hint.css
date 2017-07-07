@@ -10,14 +10,14 @@ a.hintLink:hover {
 a.hintLink:after {
 	content: '?';
 	position: relative;
-	bottom: 0px;
+	bottom: 0;
 	right: 0;
 	font-weight: bold;
 	background-color: #FFF;
 	padding: 1px;
 	line-height: 100%;
 	font-size: 9px;
-	margin-right: 0px;
+	margin-right: 0;
 	display: inline-block;
 	vertical-align: sub;
 	color: #0645AD;
@@ -35,7 +35,6 @@ a.hintLink:hover:after {
 div.hintDescr {
 	position: absolute;
 	left: 0;
-	top: 0;
 	width: 300px;
 	display: block;
 	background-color: #FFF;
