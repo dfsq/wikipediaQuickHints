@@ -1,0 +1,21 @@
+{
+  "name": "wikipediaquickhints",
+  "version": "3.0.0",
+  "scripts": {
+    "build": "echo \"Building for suported platforms...\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dfsq/wikipediaQuickHints.git"
+  },
+  "author": "Aliaksandr Astashenkau",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dfsq/wikipediaQuickHints/issues"
+  },
+  "homepage": "https://github.com/dfsq/wikipediaQuickHints#readme",
+  "dependencies": {
+    "vue": "^2.5.16"
+  }
+}

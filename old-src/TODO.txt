@@ -1,0 +1,11 @@
+VERSION 3.0.0
+=============
+
+X 1. Add "More" link in definition popup with a next paragraph of the article (if any).
+
+2. Make fon't size using em, so it's the same as article text font size.
+    - Append hind div inside the <a> and simplify positioning logic.
+
+3. Remove question marks and corresponding setting.
+
+4. Add setting for preferred hint message. Fallback for current language if preferred language is not available. 

@@ -1,0 +1,11 @@
+{
+  "appName": {
+    "message": "Wikipedia Quick Hints"
+  },
+  "appDesc": {
+    "message": "Быстрый и удобный просмотр значений назнакомых терминов."
+  },
+  "appPageActionTitle": {
+    "message": "Подсказки готовы к просмотру."
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "appName": {
+    "message": "Wikipedia Quick Hints",
+    "description": "The title of the application, displayed in the web store."
+  },
+  "appDesc": {
+    "message": "Display quick description of the terms in the Wikipedia article.",
+    "description": "The description of the application, displayed in the web store."
+  },
+  "appPageActionTitle": {
+    "message": "Quick hints are available!"
+  },
+
+
+  "l10nSecondParagraph": {
+    "message":"If you need more complex localization, you can also define <strong>data-l10n-args</strong>.  This should contain <span class='code'>$containerType$</span> filled with <span class='code'>$dataType$</span>, which will be passed into Chrome's i18n API as <span class='code'>$functionArgs$</span>.  In fact, this paragraph does just that, and wraps the args in mono-space font.  Easy!"
+    ,"placeholders": {
+      "containerType": {
+        "content":"$1"
+        ,"example":"'array', 'list', or something similar"
+        ,"description":"type of the args container"
+      }
+      ,"dataType": {
+        "content":"$2"
+        ,"example":"string"
+        ,"description":"type of data in each array index"
+      }
+      ,"functionArgs": {
+        "content":"$3"
+        ,"example":"arguments"
+        ,"description":"whatever you call what you pass into a function/method.  args, params, etc."
+      }
+    }
+  }
+  ,"l10nSubmit": {
+    "message":"a <strong>submit</strong> value"
+  }
+}
