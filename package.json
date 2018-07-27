@@ -2,7 +2,13 @@
   "name": "wikipediaquickhints",
   "version": "3.0.0",
   "scripts": {
-    "build": "echo \"Building for suported platforms...\"",
+    "dev": "parcel src/page-action/popup.html --out-dir dist/Chrome/src/page-action --public-url /src/page-action/",
+    "build": "npm run build:clean && npm run build:page-action && npm run build:copy && npm run build:manifest && npm run build:archive",
+    "build:clean": "rm -rf dist",
+    "build:page-action": "parcel build src/page-action/popup.html --out-dir dist/page-action --public-url /src/page-action/",
+    "build:copy": "node build/copy.js",
+    "build:manifest": "node build/manifest.js",
+    "build:archive": "node build/archive.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,5 +23,14 @@
   "homepage": "https://github.com/dfsq/wikipediaQuickHints#readme",
   "dependencies": {
     "vue": "^2.5.16"
+  },
+  "devDependencies": {
+    "@vue/component-compiler-utils": "^2.1.0",
+    "archiver": "^2.1.1",
+    "babel-preset-env": "^1.7.0",
+    "fs-extra": "^7.0.0",
+    "node-sass": "^4.9.2",
+    "parcel-bundler": "^1.9.7",
+    "parcel-plugin-vue": "^1.5.0"
   }
 }

@@ -25,19 +25,21 @@
   ],
   "content_scripts": [
     {
-//      "matches": ["*://*.wikipedia.org/wiki/*"],
       "matches": [
-        "http://*.wikipedia.org/wiki/*",
-        "https://*.wikipedia.org/wiki/*"
+        "*://*.wikipedia.org/wiki/*"
       ],
-      "css": ["src/inject/inject.css"],
-      "js": ["src/inject/inject.js"],
+      "css": [
+        "src/inject/inject.css"
+      ],
+      "js": [
+        "src/inject/inject.js"
+      ],
       "run_at": "document_idle"
     }
-  ]
-// ,"applications": {
-//    "gecko": {
-//      "id": "webextension@wikipediaquickhints.io"
-//    }
-//  }
+  ],
+  "applications": {
+    "gecko": {
+      "id": "webextension@wikipediaquickhints.io"
+    }
+  }
 }
