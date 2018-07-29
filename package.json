@@ -2,12 +2,18 @@
   "name": "wikipediaquickhints",
   "version": "3.0.0",
   "scripts": {
-    "dev": "parcel src/page-action/popup.html --out-dir dist/Chrome/src/page-action --public-url /src/page-action/",
-    "build": "npm run build:clean && npm run build:page-action && npm run build:copy && npm run build:manifest && npm run build:archive",
+    "dev": "npm run build:clean && npm run dev:manifest -- ${PLATFORM_NAME-Chrome} && concurrently \"npm run dev:watch -- ${PLATFORM_NAME-Chrome}\" \"npm run dev:page-action -- ${PLATFORM_NAME-Chrome}\"",
+    "dev:chrome": "PLATFORM_NAME=Chrome npm run dev",
+    "dev:firefox": "PLATFORM_NAME=Firefox npm run dev",
+    "dev:watch": "nodemon --watch ./src/background --watch ./src/inject -x \"npm run dev:copy\"",
+    "dev:copy": "node build/dev-copy.js",
+    "dev:manifest": "node build/dev-manifests.js",
+    "dev:page-action": "parcel watch src/page-action/popup.html --out-dir dist/${PLATFORM_NAME-Chrome}/src/page-action --public-url /src/page-action/",
+    "build": "NODE_ENV=production npm run build:clean && npm run build:page-action && npm run build:copy && npm run build:manifest && npm run build:archive",
     "build:clean": "rm -rf dist",
-    "build:page-action": "parcel build src/page-action/popup.html --out-dir dist/page-action --public-url /src/page-action/",
+    "build:page-action": "NODE_ENV=production parcel build src/page-action/popup.html --out-dir dist/page-action --public-url /src/page-action/",
     "build:copy": "node build/copy.js",
-    "build:manifest": "node build/manifest.js",
+    "build:manifest": "NODE_ENV=production node build/manifest.js",
     "build:archive": "node build/archive.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,15 +28,17 @@
   },
   "homepage": "https://github.com/dfsq/wikipediaQuickHints#readme",
   "dependencies": {
-    "vue": "^2.5.16"
+    "vue": "^2.5.16",
+    "vue-hot-reload-api": "^2.3.0"
   },
   "devDependencies": {
     "@vue/component-compiler-utils": "^2.1.0",
     "archiver": "^2.1.1",
-    "babel-preset-env": "^1.7.0",
+    "concurrently": "^3.6.1",
     "fs-extra": "^7.0.0",
     "node-sass": "^4.9.2",
+    "nodemon": "^1.18.3",
     "parcel-bundler": "^1.9.7",
-    "parcel-plugin-vue": "^1.5.0"
+    "vue-template-compiler": "^2.5.16"
   }
 }
