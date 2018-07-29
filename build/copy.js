@@ -1,7 +1,6 @@
 const path = require('path')
 const fs = require('fs-extra')
 
-/** @type {[ { name: String, manifest: Function }]} */
 const platforms = require('./platforms')
 
 function resolve (src) {
